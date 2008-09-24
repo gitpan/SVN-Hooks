@@ -2,6 +2,9 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker;
 
+# http://wiki.cpantesters.org/wiki/CPANAuthorNotes
+exit 0 unless -x '/usr/bin/svnlook';
+
 WriteMakefile(
     NAME                => 'SVN::Hooks',
     AUTHOR              => 'Gustavo Chaves <gustavo+perl@gnustavo.com>',

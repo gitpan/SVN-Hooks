@@ -12,7 +12,7 @@ our $VERSION = $SVN::Hooks::VERSION;
 
 =head1 NAME
 
-SVN::Hooks::CheckProperty - check properties in added files.
+SVN::Hooks::CheckProperty - Check properties in added files.
 
 =head1 SYNOPSIS
 

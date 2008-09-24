@@ -115,7 +115,7 @@ understand it with some examples.
 	);
 
 The structure's first level consists of the three usual directories:
-C<trunk>, C<tags>, and B<branches>. Anything else in this level is
+C<trunk>, C<tags>, and C<branches>. Anything else in this level is
 denied.
 
 Below the C<trunk> we allow some usual files and two directories only:
