@@ -15,11 +15,11 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07.' . substr(q$Revision: 357 $, 10);
+our $VERSION = '0.08.' . substr(q$Revision: 357 $, 10);
 
 =head1 SYNOPSIS
 
@@ -312,11 +312,11 @@ sub run_hook {
     # in the hooks where this makes sense.
     if ($hook_name eq 'pre-commit') {
 	# The next arg is a transaction number
-	$args[0] = SVN::Look->new($repo, '-t' => $args[0]);
+	$args[0] = SVN::Look->new($repo_path, '-t' => $args[0]);
     }
     elsif ($hook_name =~ /^(?:post-commit|(?:pre|post)-revprop-change)$/) {
 	# The next arg is a revision number
-	$args[0] = SVN::Look->new($repo, '-r' => $args[0]);
+	$args[0] = SVN::Look->new($repo_path, '-r' => $args[0]);
     }
 
     foreach my $conf (values %{$repo->{confs}}) {

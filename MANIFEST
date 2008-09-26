@@ -1,8 +1,5 @@
-ChangeLog
-MANIFEST
-Makefile.PL
-META.yml
-README
+.cvsignore
+Changes
 lib/SVN/Hooks.pm
 lib/SVN/Hooks/CheckLog.pm
 lib/SVN/Hooks/CheckMimeTypes.pm
@@ -13,7 +10,11 @@ lib/SVN/Hooks/DenyFilenames.pm
 lib/SVN/Hooks/JiraAcceptance.pm
 lib/SVN/Hooks/Mailer.pm
 lib/SVN/Hooks/UpdateConfFile.pm
-lib/SVN/Look.pm
+LICENSE
+Makefile.PL
+MANIFEST
+META.yml
+README
 t/00-load.t
 t/02-checklog.t
 t/02-checkmimetypes.t
@@ -28,3 +29,4 @@ t/boilerplate.t
 t/pod-coverage.t
 t/pod.t
 t/test-functions.pl
+TODO
