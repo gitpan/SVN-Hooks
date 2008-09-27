@@ -1,6 +1,7 @@
 .cvsignore
 Changes
 lib/SVN/Hooks.pm
+lib/SVN/Hooks/AllowLogChange.pm
 lib/SVN/Hooks/CheckLog.pm
 lib/SVN/Hooks/CheckMimeTypes.pm
 lib/SVN/Hooks/CheckProperty.pm
@@ -16,6 +17,7 @@ MANIFEST
 META.yml
 README
 t/00-load.t
+t/02-allowlogchange.t
 t/02-checklog.t
 t/02-checkmimetypes.t
 t/02-checkproperty.t
@@ -25,7 +27,6 @@ t/02-denyfilenames.t
 t/02-jiraacceptance.t
 t/02-mailer.t
 t/02-updateconffile.t
-t/boilerplate.t
 t/pod-coverage.t
 t/pod.t
 t/test-functions.pl

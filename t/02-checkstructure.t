@@ -3,9 +3,16 @@
 use strict;
 use warnings;
 use lib 't';
-use Test::More tests => 13;
+use Test::More;
 
 require "test-functions.pl";
+
+if (has_svn()) {
+    plan tests => 13;
+}
+else {
+    plan skip_all => 'Need svn commands in the PATH.';
+}
 
 my $t = reset_repo();
 

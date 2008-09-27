@@ -3,7 +3,6 @@ package SVN::Hooks::Mailer;
 use warnings;
 use strict;
 use SVN::Hooks;
-use Switch;
 use Email::Send;
 use Email::Simple;
 use Email::Simple::Creator;
@@ -64,20 +63,18 @@ sub EMAIL_CONFIG {
     my $conf = $SVN::Hooks::Confs->{$HOOK};
 
     $conf->{sender} = Email::Send->new({mailer => $opt});
-    switch ($opt) {
-	case 'Sendmail' {
-	    -x $arg or die "EMAIL_CONFIG: not an executable file ($arg)";
-	    $Email::Send::Sendmail::SENDMAIL = $arg;
-	}
-	case 'SMTP' {
-	    $conf->{sender}->mailer_args([Host => $arg]);
-	}
-	case 'IO' {
-	    $conf->{sender}->mailer_args([$arg]);
-	}
-	else {
-	    die "EMAIL_CONFIG: unknown option '$opt'"
-	}
+    if    ($opt eq 'Sendmail') {
+	-x $arg or die "EMAIL_CONFIG: not an executable file ($arg)";
+	$Email::Send::Sendmail::SENDMAIL = $arg;
+    }
+    elsif ($opt eq 'SMTP') {
+	$conf->{sender}->mailer_args([Host => $arg]);
+    }
+    elsif ($opt eq 'IO') {
+	$conf->{sender}->mailer_args([$arg]);
+    }
+    else {
+	die "EMAIL_CONFIG: unknown option '$opt'"
     }
 }
 
@@ -193,14 +190,14 @@ EOS
     foreach my $p (@{$self->{projects}}) {
 	foreach my $file ($svnlook->changed()) {
 	    if ($file =~ $p->{match}) {
-		send_email($self->{sender}, $p, $rev, $author, $body);
+		_send_email($self->{sender}, $p, $rev, $author, $body);
 		last;
 	    }
 	}
     }
 }
 
-sub send_email {
+sub _send_email {
     my ($sender, $project, $rev, $author, $body) = @_;
 
     my $subject = "Commit revision $rev by $author";

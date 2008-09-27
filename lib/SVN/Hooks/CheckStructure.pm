@@ -140,7 +140,7 @@ $SVN::Hooks::Inits{$HOOK} = sub {
     return {};
 };
 
-sub check_structure {
+sub _check_structure {
     my ($structure, $path) = @_;
 
     my $component = shift @$path;
@@ -188,11 +188,11 @@ sub check_structure {
 	    my ($lhs, $rhs) = @{$structure}[$s, $s+1];
 	    if (! ref $lhs) {
 		if ($lhs eq $component) {
-		    return check_structure($rhs, $path);
+		    return _check_structure($rhs, $path);
 		}
 		elsif ($lhs =~ /^\d+$/) {
 		    if ($lhs) {
-			return check_structure($rhs, $path);
+			return _check_structure($rhs, $path);
 		    }
 		    elsif (! ref $rhs) {
 			return (0, "$rhs, while checking");
@@ -204,7 +204,7 @@ sub check_structure {
 	    }
 	    elsif (ref $lhs eq 'Regexp') {
 		if ($component =~ $lhs) {
-		    return check_structure($rhs, $path);
+		    return _check_structure($rhs, $path);
 		}
 	    }
 	    else {
@@ -227,7 +227,7 @@ sub pre_commit {
 
     foreach my $added ($svnlook->added()) {
 	my @added = split '/', $added, -1; # preserve trailing empty components
-	my ($code, $error) = check_structure($self->{structure}, \@added);
+	my ($code, $error) = _check_structure($self->{structure}, \@added);
 	push @errors, "$error: $added" if $code == 0;
     }
 

@@ -47,7 +47,7 @@ passed as arguments.
 
 =cut
 
-sub deny_change {
+sub _deny_change {
     my ($change, @regexes) = @_;
 
     foreach (@regexes) {
@@ -61,15 +61,15 @@ sub deny_change {
 }
 
 sub DENY_ADDITION {
-    deny_change(deny_add    => @_);
+    _deny_change(deny_add    => @_);
 }
 
 sub DENY_DELETION {
-    deny_change(deny_delete => @_);
+    _deny_change(deny_delete => @_);
 }
 
 sub DENY_UPDATE {
-    deny_change(deny_update => @_);
+    _deny_change(deny_update => @_);
 }
 
 $SVN::Hooks::Inits{$HOOK} = sub {

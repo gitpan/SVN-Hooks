@@ -15,11 +15,11 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =cut
 
-our $VERSION = '0.08.' . substr(q$Revision: 357 $, 10);
+our $VERSION = '0.09.' . substr(q$Revision: 364 $, 10);
 
 =head1 SYNOPSIS
 
@@ -254,6 +254,8 @@ Yet to do.
 
 =head1 EXPORT
 
+=head2 run_hook
+
 SVN::Hooks exports a single function, B<run_hook>, which is
 responsible to invoke the right plugins depending on the context in
 which it was called.
@@ -306,7 +308,7 @@ sub run_hook {
 
     my $repo = repo($repo_path);
 
-    load_configs($repo);
+    _load_configs($repo);
 
     # Substitute a SVN::Look object for the first argument
     # in the hooks where this makes sense.
@@ -348,7 +350,7 @@ sub repo {
 
 our (%Inits, $Repo, $Confs);
 
-sub load_configs {
+sub _load_configs {
     ($Repo) = @_;
 
     my $touched = 0;

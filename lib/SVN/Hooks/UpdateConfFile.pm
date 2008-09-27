@@ -117,7 +117,7 @@ sub UPDATE_CONF_FILE {
 		    or die "$HOOK: $name argument must have at least one element.\n";
 		-x $what->[0]
 		    or die "$HOOK: $name argument is not a valid command ($what->[0]).\n";
-		$conf->{confs}{$from}{$name} = functor($SVN::Hooks::Repo->{repo_path}, $what);
+		$conf->{confs}{$from}{$name} = _functor($SVN::Hooks::Repo->{repo_path}, $what);
 	    }
 	    else {
 		die "$HOOK: $name argument must be a CODE-ref or an ARRAY-ref.\n";
@@ -220,8 +220,8 @@ EOS
 }
 
 # FIXME: memoize isn't working
-# memoize('functor');
-sub functor {
+# memoize('_functor');
+sub _functor {
     my ($repo_path, $cmdlist) = @_;
     my $cmd = join(' ', @$cmdlist);
 
