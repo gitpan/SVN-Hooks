@@ -86,28 +86,31 @@ my %valid_options = (
     cc       => undef,
     bcc      => undef,
     reply_to => undef,
+    diff     => undef,
 );
 
 =head2 EMAIL_COMMIT(HASH_REF)
 
 This directive receives a hash-ref specifying the email that must be
-sent. The hash must contain the following key/value pairs:
+sent. The hash may contain the following key/value pairs:
 
 =over
 
 =item match => qr/Regexp/
 
 The email will be sent only if the Regexp matches at least one of the
-files changed in the commit. In its absense, the email will be sent
-always.
+files changed in the commit. If it doesn't exist, the email will be
+sent always.
 
 =item from => 'ADDRESS'
 
-The email address that will be used in the From: header.
+The email address that will be used in the From: header. If it doesn't
+exist, the from address will usually be the user running Subversion.
 
 =item to => 'ADDRESS, ...'
 
-The email addresses to which the email will be sent. This is required.
+The email addresses to which the email will be sent. This key is
+required.
 
 =item tag => 'STRING'
 
@@ -115,7 +118,31 @@ If present, the subject will be prefixed with '[STRING] '.
 
 =item cc, bcc, reply_to => 'ADDRESS, ...'
 
-These are optional.
+These are optional email addresses used in the respective email
+headers.
+
+=item diff => [STRING, ...]
+
+If this key is specified, the email will also contain the GNU-style
+diff of changed files in the commit. If its value is an ARRAY REF its
+values will be passed as extra options to the 'svnlook diff'
+command. There are three of them:
+
+=over
+
+=item C<--no-diff-deleted>
+
+Do not print differences for deleted files
+
+=item C<--no-diff-added>
+
+Do not print differences for added files.
+
+=item C<--diff-copy-from>
+
+Print differences against the copy source.
+
+=back
 
 =back
 
@@ -164,34 +191,43 @@ $SVN::Hooks::Inits{$HOOK} = sub {
 sub post_commit {
     my ($self, $svnlook) = @_;
 
-    my $rev     = $svnlook->rev();
-    my $author  = $svnlook->author();
-    my $date    = $svnlook->date();
+    my ($body, $rev, $author, $date);
 
-    my $body = <<"EOS";
+  PROJECT:
+    foreach my $p (@{$self->{projects}}) {
+	foreach my $file ($svnlook->changed()) {
+	    if ($file =~ $p->{match}) {
+		unless ($body) {
+		    $rev    = $svnlook->rev();
+		    $author = $svnlook->author();
+		    $date   = $svnlook->date();
+
+		    $body = <<"EOS";
 Author:   $author
 Revision: $rev
 Date:     $date
 EOS
 
-    my $changed = $svnlook->changed_hash();
-    foreach my $change (qw/added deleted updated prop_modified/) {
-	my $list = $changed->{$change};
-	if (@$list) {
-	    $body .= join "\n    ", "\u$change files:", @$list;
-	    $body .= "\n";
-	}
-    }
+		    my $changed = $svnlook->changed_hash();
+		    foreach my $change (qw/added deleted updated prop_modified/) {
+			my $list = $changed->{$change};
+			if (@$list) {
+			    $body .= join "\n    ", "\u$change files:", @$list;
+			    $body .= "\n";
+			}
+		    }
 
-    my $log = $svnlook->log_msg();
-    $log    =~ s/^/    /g;		# indent every line
-    $body  .= "Log Message:\n$log\n";
+		    my $log = $svnlook->log_msg();
+		    $log    =~ s/^/    /g;		# indent every line
+		    $body  .= "Log Message:\n$log\n";
 
-    foreach my $p (@{$self->{projects}}) {
-	foreach my $file ($svnlook->changed()) {
-	    if ($file =~ $p->{match}) {
+		    if (exists $p->{diff}) {
+			my $diff = $p->{diff};
+			$body .= $svnlook->diff((ref $diff and ref $diff eq 'ARRAY') ? @$diff : ());
+		    }
+		}
 		_send_email($self->{sender}, $p, $rev, $author, $body);
-		last;
+		next PROJECT;
 	    }
 	}
     }

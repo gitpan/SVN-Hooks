@@ -84,12 +84,14 @@ EMAIL_COMMIT(
     tag   => 'A',
     from  => 'from@example.net',
     to    => 'to@example.net',
+    diff  => undef,
 );
 EMAIL_COMMIT(
     match => qr/^b/,
     tag   => 'B',
     from  => 'from@example.net',
     to    => 'to@example.net',
+    diff  => ['--no-diff-deleted'],
 );
 EOS
 

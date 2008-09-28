@@ -1,7 +1,3 @@
-* Email differences
-   The Mailer plugin should be able to send the differences introduced
-   in all text files changed in a commit.
-
 * Email UTF-8
    The SVN::Look module should obtain all information from the svnlook
    command in UTF-8 and use it accordingly. In particular, the emails
@@ -24,12 +20,7 @@
    secure. Perhaps we can still preserve all the power we need by
    using YAML [http://www.yaml.org/].
 
-* The Mailer plugin should have an option to insert the diff of all
-  changes in the commit.
-
 * Reimplement SVN::Look to use the Perl SVN bindings instead of
   calling svnlook. However, another approach would be to implement an
   option in svnlook to dump all information in a format like XML so
   that we wouldn't need to call it several times.
-
-* Documentation!!!

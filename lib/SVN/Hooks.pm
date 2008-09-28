@@ -15,11 +15,11 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =cut
 
-our $VERSION = '0.09.' . substr(q$Revision: 364 $, 10);
+our $VERSION = '0.10.' . substr(q$Revision: 370 $, 10);
 
 =head1 SYNOPSIS
 
@@ -136,6 +136,10 @@ more details.
 
 =over
 
+=item SVN::Hooks::AllowLogChange
+
+Allow changes in revision log messages.
+
 =item SVN::Hooks::CheckLog
 
 Check if the log message in a commit conforms to a Regexp.
@@ -199,6 +203,7 @@ which you are interested.
 	use strict;
 	use warnings;
 	use SVN::Hooks;
+	use SVN::Hooks::AllowLogChange;
 	use SVN::Hooks::CheckLog;
 	use SVN::Hooks::CheckMimeTypes;
 	use SVN::Hooks::CheckProperty;
@@ -217,6 +222,7 @@ it for each hook you are interested in.
 
 	$ ln -s svn-hooks.pl pre-commit
 	$ ln -s svn-hooks.pl post-commit
+	$ ln -s svn-hooks.pl pre-revprop-change
 
 The default configuration file for the hook is called
 C<svn-hooks.conf> in the C<conf> directory under the directory where

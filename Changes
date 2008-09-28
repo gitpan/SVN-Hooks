@@ -1,5 +1,10 @@
 Revision history for SVN-Look. -*- text -*-
 
+0.10	2008-09-27
+
+	The Mailer plugin can send GNU-style diffs of the files
+	changed in the commit.
+
 0.09	2008-09-27
 
  	Implemented the AllowLogChange plugin to allow changes in past
