@@ -222,8 +222,9 @@ EOS
 		    $body  .= "Log Message:\n$log\n";
 
 		    if (exists $p->{diff}) {
-			my $diff = $p->{diff};
-			$body .= $svnlook->diff((ref $diff and ref $diff eq 'ARRAY') ? @$diff : ());
+			my $opts = $p->{diff};
+			my $diff = $svnlook->diff((ref $opts and ref $opts eq 'ARRAY') ? @$opts : ());
+			$body   .= "\n$diff";
 		    }
 		}
 		_send_email($self->{sender}, $p, $rev, $author, $body);

@@ -38,7 +38,8 @@ sub do_script {
 sub work_ok {
     my ($tag, $cmd) = @_;
     my $num = 1 + Test::Builder->new()->current_test();
-    ok((do_script($num, $cmd) == 0), $tag);
+    ok((do_script($num, $cmd) == 0), $tag)
+	or diag("work_ok command failed.\n");
 }
 
 sub work_nok {
@@ -48,19 +49,22 @@ sub work_nok {
     my $exit = do_script($num, $cmd);
     if ($exit == 0) {
 	fail($tag);
+	diag("work_nok command worked but it shouldn't!\n");
 	return;
     }
 
     my $stderr = `cat $T/$num.stderr`;
 
     if (! ref $error_expect) {
-	ok(index($stderr, $error_expect) >= 0, $tag);
+	ok(index($stderr, $error_expect) >= 0, $tag)
+	    or diag("work_nok:\n  '$stderr'\n    does not contain\n  '$error_expect'\n");
     }
     elsif (ref $error_expect eq 'Regexp') {
-	ok($stderr =~ $error_expect, $tag);
+	like($stderr, $error_expect, $tag);
     }
     else {
 	fail($tag);
+	diag("work_nok: invalid second argument to test.\n");
     }
 }
 
