@@ -11,7 +11,7 @@ use Exporter qw/import/;
 my $HOOK = 'MAILER';
 our @EXPORT = qw/EMAIL_CONFIG EMAIL_COMMIT/;
 
-our $VERSION = $SVN::Hooks::VERSION;
+our $VERSION = 0.11;
 
 =head1 NAME
 
@@ -20,7 +20,9 @@ SVN::Hooks::Mailer - Send emails after succesful commits.
 =head1 SYNOPSIS
 
 This SVN::Hooks plugin sends notification emails after succesful
-commits. The emails contain information about the commit like this:
+commits. It's deprecated. You should use SVN::Hooks::Notify instead.
+
+The emails contain information about the commit like this:
 
 	Subject: [TAG] Commit revision 153 by jsilva
 
@@ -269,7 +271,7 @@ sub _send_email {
 
 =head1 AUTHOR
 
-Gustavo Chaves, C<< <gustavo+perl at gnustavo.com> >>
+Gustavo Chaves, C<< <gnustavo@cpan.org> >>
 
 =head1 BUGS
 

@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME                => 'SVN::Hooks',
-    AUTHOR              => 'Gustavo Chaves <gustavo+perl@gnustavo.com>',
+    AUTHOR              => 'Gustavo Chaves <gnustavo@cpan.org>',
     VERSION_FROM        => 'lib/SVN/Hooks.pm',
     ABSTRACT_FROM       => 'lib/SVN/Hooks.pm',
     PL_FILES            => {},
@@ -12,7 +12,6 @@ WriteMakefile(
 	'Email::Send'   => 0,
 	'Email::Simple' => 0,
 	'Email::Simple::Creator' => 0,
-	'Switch'        => 0,
 	'XMLRPC::Lite'  => 0,
         'Test::More'    => 0,
 	'SVN::Look'     => 0,

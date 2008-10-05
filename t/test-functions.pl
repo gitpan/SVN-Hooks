@@ -6,20 +6,30 @@ use strict;
 use warnings;
 use Cwd;
 use File::Temp qw/tempdir/;
+use File::Spec::Functions qw/catfile path rootdir/;
 
 # Make sure the svn messages come in English.
 $ENV{LC_MESSAGES} = 'C';
 
 sub has_svn {
+    my $root = rootdir();
+    my @path = (
+	path(),
+	catfile($root, 'usr', 'local', 'bin'),
+	catfile($root, 'usr', 'bin'),
+	catfile($root, 'bin'),
+    );
+
   CMD:
     for my $cmd (qw/svn svnadmin svnlook/) {
-	for my $path (split /:/, $ENV{PATH}) {
-	    next CMD if -x "$path/$cmd";
+	for my $path (@path) {
+	    next CMD if -x catfile($path, $cmd);
 	}
 	return 0;
     }
     return 1;
 }
+
 
 our $T;
 

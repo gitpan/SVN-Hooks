@@ -238,7 +238,7 @@ sub pre_commit {
 
 =head1 AUTHOR
 
-Gustavo Chaves, C<< <gustavo+perl at gnustavo.com> >>
+Gustavo Chaves, C<< <gnustavo@cpan.org> >>
 
 =head1 BUGS
 

@@ -7,11 +7,17 @@ use Test::More;
 
 require "test-functions.pl";
 
-if (has_svn()) {
-    plan tests => 17;
+if (not has_svn()) {
+    plan skip_all => 'Need svn commands in the PATH.';
+}
+elsif (not eval {require Email::Send}) {
+    plan skip_all => 'Need Email::Send';
+}
+elsif (not eval {require Email::Simple::Creator}) {
+    plan skip_all => 'Need Email::Simple::Creator';
 }
 else {
-    plan skip_all => 'Need svn commands in the PATH.';
+    plan tests => 17;
 }
 
 my $t = reset_repo();

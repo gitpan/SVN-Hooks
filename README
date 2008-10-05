@@ -1,7 +1,7 @@
 Name:    SVN-Hooks
 What:    Framework for Subversion hooks
-Version: 0.10
-Author:  Gustavo Chaves <gustavo+perl@gnustavo.com>
+Version: 0.11
+Author:  Gustavo Chaves <gnustavo@cpan.org>
 
 SVN-Hooks is a framework for creating Subversion hooks
 (http://svnbook.red-bean.com/nightly/en/svn.reposadmin.create.html#svn.reposadmin.create.hooks).

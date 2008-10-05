@@ -7,11 +7,14 @@ use Test::More;
 
 require "test-functions.pl";
 
-if (has_svn()) {
-    plan tests => 9;
+if (not has_svn()) {
+    plan skip_all => 'Need svn commands in the PATH.';
+}
+elsif (not eval {require XMLRPC::Lite}) {
+    plan skip_all => 'Need XMLRPC::Lite';
 }
 else {
-    plan skip_all => 'Need svn commands in the PATH.';
+    plan tests => 9;
 }
 
 my $t = reset_repo();

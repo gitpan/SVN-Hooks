@@ -1,5 +1,15 @@
 Revision history for SVN-Look. -*- text -*-
 
+0.11	2008-10-04
+
+	Implemented new plugin SVN::Hooks::Notify which uses
+	SVN::Notify. With this we deprecate the SVN::Hooks::Mailer
+	plugin.
+
+	Using File::Spec to be a little more portable.
+
+	Changed license to the license of Perl itself.
+
 0.10	2008-09-27
 
 	The Mailer plugin can send GNU-style diffs of the files
