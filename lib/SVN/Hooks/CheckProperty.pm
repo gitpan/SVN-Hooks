@@ -28,13 +28,17 @@ It's configured by the following directive.
 This directive enables the checking, causing the commit to abort if it
 doesn't comply.
 
-The WHERE argument must be a 
+The WHERE argument must be a qr/Regexp/ matching all files that must
+comply to this rule.
 
-The MESSAGE argument is an optional help message shown to the user in
-case the commit fails. Note that by default the plugin already inserts
-a rather verbose help message in case of errors.
+The PROPERTY argument is the name of the property that must be set for
+the files matching WHERE.
 
-	CHECK_MIMETYPES("Use TortoiseSVN -> Properties menu option to set properties.");
+The VALUE argument is an optional STRING. Use it to require a specific
+value for PROPERTY.
+
+	CHECK_PROPERTY(qr/\.(?:do[ct]|od[bcfgimpst]|ot[ghpst]|pp[st]|xl[bst])$/i
+	       => 'svn:needs-lock');
 
 =cut
 

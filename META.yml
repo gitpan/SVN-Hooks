@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         SVN-Hooks
-version:      0.11.390
+version:      0.12.410
 version_from: lib/SVN/Hooks.pm
 installdirs:  site
 requires:

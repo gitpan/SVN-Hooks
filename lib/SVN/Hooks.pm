@@ -15,11 +15,11 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-Version 0.11
+Version 0.12
 
 =cut
 
-our $VERSION = '0.11.' . substr(q$Revision: 390 $, 10);
+our $VERSION = '0.12.' . substr(q$Revision: 410 $, 10);
 
 =head1 SYNOPSIS
 
@@ -176,7 +176,7 @@ Require that the log message in a commit includes references to issues
 in the L<JIRA|http://www.atlassian.com/software/jira/> ticketing
 system.
 
-=item SVN::Hooks::Mailer
+=item SVN::Hooks::Notify
 
 Sends notification emails after succesful commits.
 
@@ -211,7 +211,7 @@ which you are interested.
 	use SVN::Hooks::DenyChanges;
 	use SVN::Hooks::DenyFilenames;
 	use SVN::Hooks::JiraAcceptance;
-	use SVN::Hooks::Mailer;
+	use SVN::Hooks::Notify;
 	use SVN::Hooks::UpdateRepoFile;
 
 	run_hook($0, @ARGV);
@@ -237,7 +237,7 @@ by the plugins.
 	CHECK_MIMETYPES();
 
 	# Binary+editable files must have the svn:needs-lock property set
-	CHECK_PROPERTY(qr/\.(?:do[ct]|xl[bst]|pp[st]|rtf|od[bcfgimpst]|ot[ghpst]|sd[acdpsw]|s[tx][cdiw]|mpp|vsd)$/i
+	CHECK_PROPERTY(qr/\.(?:do[ct]x?|xl[bst]x?|pp[st]x?|rtf|od[bcfgimpst]|ot[ghpst]|sd[acdpsw]|s[tx][cdiw]|mpp|vsd)$/i
 			   => 'svn:needs-lock');
 
 	DENY_UPDATE(qr:^tags:);
