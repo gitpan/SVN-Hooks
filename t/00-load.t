@@ -18,7 +18,6 @@ my $t = reset_repo();
 
 set_hook(<<'EOS');
 use SVN::Hooks::CheckMimeTypes;
-use SVN::Hooks::AccessControl;
 use SVN::Hooks::DenyChanges;
 use SVN::Hooks::CheckMimeTypes;
 use SVN::Hooks::CheckProperty;
