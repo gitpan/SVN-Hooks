@@ -1,10 +1,13 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         SVN-Hooks
-version:      0.13.9
-version_from: lib/SVN/Hooks.pm
-installdirs:  site
-requires:
+--- #YAML:1.0
+name:                SVN-Hooks
+version:             0.13.11
+abstract:            A framework for implementing Subversion hooks.
+license:             ~
+author:              
+    - Gustavo Chaves <gnustavo@cpan.org>
+generated_by:        ExtUtils::MakeMaker version 6.42
+distribution_type:   module
+requires:     
     Email::Send:                   0
     Email::Simple:                 0
     Email::Simple::Creator:        0
@@ -12,6 +15,6 @@ requires:
     SVN::Notify:                   0
     Test::More:                    0
     XMLRPC::Lite:                  0
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.30_01
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3
