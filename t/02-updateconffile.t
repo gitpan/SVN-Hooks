@@ -8,7 +8,7 @@ use Test::More;
 require "test-functions.pl";
 
 if (has_svn()) {
-    plan tests => 10;
+    plan tests => 12;
 }
 else {
     plan skip_all => 'Need svn commands in the PATH.';
@@ -39,10 +39,10 @@ svn ci -mx $t/wc/file
 EOS
 
 set_conf(<<'EOS');
-UPDATE_CONF_FILE('first', 'path/second');
+UPDATE_CONF_FILE('first', qr/regexp/);
 EOS
 
-work_nok('second arg is path', 'UPDATE_CONF_FILE: second argument must be a basename, not a path', <<"EOS");
+work_nok('invalid second arg', 'UPDATE_CONF_FILE: invalid second argument', <<"EOS");
 svn ci -mx $t/wc/file
 EOS
 
@@ -74,7 +74,8 @@ set_conf(<<'EOS');
 UPDATE_CONF_FILE(file => 'file');
 
 sub validate {
-    my ($text) = @_;
+    my ($text, $file) = @_;
+    die "undefined second argument" unless defined $file;
     if ($text =~ /abort/) {
 	die "Aborting!"
     }
@@ -87,8 +88,9 @@ UPDATE_CONF_FILE(validate  => 'validate',
                  validator => \&validate);
 
 sub generate {
-    my ($text) = @_;
-    return "[$text]\n";
+    my ($text, $file) = @_;
+    die "undefined second argument" unless defined $file;
+    return "[$file, $text]\n";
 }
 
 UPDATE_CONF_FILE(generate  => 'generate',
@@ -117,9 +119,39 @@ echo asdf >$t/wc/generate
 svn add -q --no-auto-props $t/wc/generate
 svn ci -mx $t/wc/generate
 cat >$t/wc/generated <<'EOSS'
-[asdf
+[generate, asdf
 ]
 EOSS
 cmp $t/wc/generated $t/repo/conf/generate
 EOS
 
+set_conf(<<'EOS');
+UPDATE_CONF_FILE(qr/^file(\d)$/ => 'dir');
+
+sub actuate {
+    my ($text, $file) = @_;
+    die "undefined second argument" unless defined $file;
+    open F, '>', "/tmp/actuated" or die $!;
+    print F $text;
+    close F;
+}
+
+UPDATE_CONF_FILE(actuate  => 'actuate',
+                 actuator => \&actuate);
+EOS
+
+mkdir "$t/repo/conf/dir";
+
+work_ok('regexp', <<"EOS");
+echo asdf >$t/wc/file1
+svn add -q --no-auto-props $t/wc/file1
+svn ci -mx $t/wc/file1
+cmp $t/wc/file1 $t/repo/conf/dir/file1
+EOS
+
+work_ok('actuate', <<"EOS");
+echo asdf >$t/wc/actuate
+svn add -q --no-auto-props $t/wc/actuate
+svn ci -mx $t/wc/actuate
+cmp $t/wc/actuate /tmp/actuated
+EOS

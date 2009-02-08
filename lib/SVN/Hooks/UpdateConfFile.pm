@@ -3,8 +3,10 @@ package SVN::Hooks::UpdateConfFile;
 use warnings;
 use strict;
 use SVN::Hooks;
+use File::Spec::Functions;
 use File::Temp qw/tempdir/;
 use Memoize;
+use Cwd qw/abs_path/;
 
 use Exporter qw/import/;
 my $HOOK = 'UPDATE_CONF_FILE';
@@ -35,9 +37,15 @@ It's configured by the following directive.
 
 =head2 UPDATE_CONF_FILE(FROM, TO, @ARGS)
 
-This directive tells that the file FROM kept under version control
-must be copied to TO, a directory relative to the C</repo/conf>
-directory in the server, after a succesful commit.
+This directive tells that after a succesful commit the file FROM, kept
+under version control, must be copied to TO.
+
+FROM can be a string or a qr/Regexp/ specifying the file path relative
+to the repository's root (e.g. "trunk/src/version.c").
+
+TO is a path relative to the C</repo/conf> directory in the server. It
+can be an explicit file name or a directory, in which case the
+basename of FROM is used as the name of the destination file.
 
 The optional @ARGS must be a sequence of pairs like these:
 
@@ -50,11 +58,36 @@ strings that will be passed to the shell) that will check the contents
 of FROM in the pre-commit hook to see if it's valid. If there is no
 validator, the contents are considered valid.
 
+The function receives two string arguments: the contents of FROM and
+the relative path to FROM.
+
+The command is called with two arguments: the path to a temporary copy
+of FROM and the relative path to FROM.
+
 =item generator => ARRAY or CODE
 
-A generator is a function or a command that will transform the
+A generator is a function or a command (specified by an array of
+strings that will be passed to the shell) that will transform the
 contents of FROM in the post-commit hook before copying it to TO. If
 there is no generator, the contents are copied as is.
+
+The function receives two string arguments: the contents of FROM and
+the relative path to FROM.
+
+The command is called with two arguments: the path to a temporary copy
+of FROM and the relative path to FROM.
+
+=item actuator => ARRAY or CODE
+
+An actuator is a function or a command (specified by an array of
+strings that will be passed to the shell) that will be invoked after a
+succesful commit of FROM in the post-commit hook.
+
+The function receives two string arguments: the contents of FROM and
+the relative path to FROM.
+
+The command is called with two arguments: the path to a temporary copy
+of FROM and the relative path to FROM.
 
 =item rotate => NUMBER
 
@@ -70,12 +103,22 @@ commit a wrong authz file that denies any subsequent commit.
 	    'conf/authz' => 'authz',
 	    validator 	 => ['/usr/local/bin/svnauthcheck'],
 	    generator 	 => ['/usr/local/bin/authz-expand-includes'],
+            actuator     => ['/usr/local/bin/notify-auth-change'],
 	    rotate       => 2,
 	);
 
 	UPDATE_CONF_FILE(
 	    'conf/svn-hooks.conf' => 'svn-hooks.conf',
-	    validator 	 => ['/usr/bin/perl', '-c'],
+	    validator 	 => [qw(/usr/bin/perl -c)],
+            actuator     => sub {
+                                my ($contents, $file) = @_;
+                                die "Can't use Gustavo here." if $contents =~ /gustavo/;
+                            },
+	    rotate       => 2,
+	);
+
+	UPDATE_CONF_FILE(
+	    qr:/file(\n+)$:' => 'conf_subdir',
 	    rotate       => 2,
 	);
 
@@ -84,7 +127,7 @@ commit a wrong authz file that denies any subsequent commit.
 sub UPDATE_CONF_FILE {
     my ($from, $to, @args) = @_;
 
-    defined $from && ! ref $from
+    defined $from && (! ref $from || ref $from eq 'Regexp')
 	or die "$HOOK: invalid first argument.\n";
 
     defined $to && ! ref $to
@@ -93,34 +136,32 @@ sub UPDATE_CONF_FILE {
     (@args % 2) == 0
 	or die "$HOOK: odd number of arguments.\n";
 
-    if ($to =~ m:/:) {
-	die "$HOOK: second argument must be a basename, not a path ($to).\n";
-    }
-    else {
-	$to = $SVN::Hooks::Repo->{repo_path} . "/conf/$to";
-    }
+    file_name_is_absolute($to)
+	and die "$HOOK: second argument cannot be an absolute pathname ($to).\n";
 
     my $conf = $SVN::Hooks::Confs->{$HOOK};
 
-    $conf->{confs}{$from}{to} = $to;
+    my %confs = (from => $from, to => $to);
+
+    push @{$conf->{confs}}, \%confs;
 
     my %args = @args;
 
-    for my $name (qw/validator generator/) {
-	if (my $what = delete $args{$name}) {
+    for my $function (qw/validator generator actuator/) {
+	if (my $what = delete $args{$function}) {
 	    if (ref $what eq 'CODE') {
-		$conf->{confs}{$from}{$name} = $what;
+		$confs{$function} = $what;
 	    }
 	    elsif (ref $what eq 'ARRAY') {
 		# This should point to list of command arguments
 		@$what > 0
-		    or die "$HOOK: $name argument must have at least one element.\n";
+		    or die "$HOOK: $function argument must have at least one element.\n";
 		-x $what->[0]
-		    or die "$HOOK: $name argument is not a valid command ($what->[0]).\n";
-		$conf->{confs}{$from}{$name} = _functor($SVN::Hooks::Repo->{repo_path}, $what);
+		    or die "$HOOK: $function argument is not a valid command ($what->[0]).\n";
+		$confs{$function} = _functor($SVN::Hooks::Repo->{repo_path}, $what);
 	    }
 	    else {
-		die "$HOOK: $name argument must be a CODE-ref or an ARRAY-ref.\n";
+		die "$HOOK: $function argument must be a CODE-ref or an ARRAY-ref.\n";
 	    }
 	    $conf->{'pre-commit'} = \&pre_commit;
 	}
@@ -131,7 +172,7 @@ sub UPDATE_CONF_FILE {
 	    or die "$HOOK: rotate argument must be numeric, not '$rotate'";
 	$rotate < 10
 	    or die "$HOOK: rotate argument must be less than 10, not '$rotate'";
-	$conf->{confs}{$from}{rotate} = $rotate;
+	$confs{rotate} = $rotate;
     }
 
     keys %args == 0
@@ -148,18 +189,26 @@ sub pre_commit {
     my ($self, $svnlook) = @_;
 
   CONF:
-    while (my ($from, $conf) = each %{$self->{confs}}) {
+    foreach my $conf (@{$self->{confs}}) {
 	if (my $validator = $conf->{validator}) {
-	    for my $file (grep {$_ eq $from} $svnlook->added(), $svnlook->updated()) {
-		my $text = $svnlook->cat($from);
+	    my $from = $conf->{from};
+	    for my $file ($svnlook->added(), $svnlook->updated()) {
+		if (! ref $from) {
+		    next if $from ne $file;
+		}
+		else {
+		    next if $from !~ $file;
+		}
+
+		my $text = $svnlook->cat($file);
 
 		if (my $generator = $conf->{generator}) {
-		    $text = eval { $generator->($text) };
+		    $text = eval { $generator->($text, $file) };
 		    defined $text
 			or die "$HOOK: Generator aborted for: $file\n", $@, "\n";
 		}
 
-		my $validation = eval { $validator->($text) };
+		my $validation = eval { $validator->($text, $file) };
 		defined $validation
 		    or die "$HOOK: Validator aborted for: $file\n", $@, "\n";
 
@@ -172,21 +221,48 @@ sub pre_commit {
 sub post_commit {
     my ($self, $svnlook) = @_;
 
+    my $absbase = abs_path(catdir($SVN::Hooks::Repo->{repo_path}, 'conf'));
+
   CONF:
-    while (my ($from, $conf) = each %{$self->{confs}}) {
-	for my $file (grep {$_ eq $from} $svnlook->added(), $svnlook->updated()) {
-	    my $text = $svnlook->cat($from);
+    foreach my $conf (@{$self->{confs}}) {
+	my $from = $conf->{from};
+	for my $file ($svnlook->added(), $svnlook->updated()) {
+	    if (! ref $from) {
+		next if $file ne $from;
+	    }
+	    else {
+		next if $file !~ $from;
+	    }
+
+	    my $to = abs_path(catfile($SVN::Hooks::Repo->{repo_path}, 'conf', $conf->{to}));
+	    if (-d $to) {
+		$to = catfile($to, (File::Spec->splitpath($file))[2]);
+	    }
+
+	    $absbase eq substr($to, 0, length($absbase))
+		or die <<"EOS";
+$HOOK: post-commit aborted for: $file
+
+This means that $file was committed but the associated
+configuration file wasn't generated because its specified
+location ($to)
+isn't below the repository's configuration directory
+($absbase).
+
+Please, correct the ${HOOK}'s second argument.
+EOS
+
+	    my $text = $svnlook->cat($file);
 
 	    if (my $generator = $conf->{generator}) {
-		$text = eval { $generator->($text) };
-		defined $text
-		    or die <<"EOS";
-$HOOK: Generator aborted for: $file
+		$text = eval { $generator->($text, $file) };
+		defined $text or die <<"EOS";
+$HOOK: generator in post-commit aborted for: $file
 
-This means that $file was commited but the associated
-configuration file wans't updated in the server:
+This means that $file was committed but the associated
+configuration file wasn't generated in the server at:
 
-  $conf->{to}
+  $to
 
 Please, investigate the problem and re-commit the file.
 
@@ -196,12 +272,31 @@ $@
 EOS
 	    }
 
-	    my $to = $conf->{to};
-
 	    open my $fd, '>', "$to.new"
 		or die "$HOOK: Can't open file \"$to\" for writing: $!\n";
 	    print $fd $text;
 	    close $fd;
+
+	    if (my $actuator = $conf->{actuator}) {
+		my $rc = eval { $actuator->($text, $file) };
+		defined $rc or die <<"EOS";
+$HOOK: actuator in post-commit aborted for: $file
+
+This means that $file was committed and the associated
+configuration file was generated in the server at:
+
+  $to
+
+But the actuator command that was called after the file generation
+didn't work right.
+
+Please, investigate the problem.
+
+Any error message produced by the actuator appears below:
+
+$@
+EOS
+	    }
 
 	    if (my $rotate = $conf->{rotate}) {
 		for (my $i=$rotate-1; $i >= 0; --$i) {
@@ -226,10 +321,11 @@ sub _functor {
     my $cmd = join(' ', @$cmdlist);
 
     return sub {
-	my ($text) = @_;
+	my ($text, $path) = @_;
 
 	my $temp = tempdir('UpdateConfFile.XXXXXX', TMPDIR => 1, CLEANUP => 1);
 
+	# FIXME: this is Unix specific!
 	open my $th, '>', "$temp/file"
 	    or die "Can't create $temp/file: $!";
 	print $th $text;
