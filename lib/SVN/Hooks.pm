@@ -19,7 +19,7 @@ Version 0.14
 
 =cut
 
-our $VERSION = '0.14.' . (q$Revision: 19 $ =~ / (\d+) /)[0]; # bump from 17
+our $VERSION = '0.14.' . (q$Revision: 21 $ =~ / (\d+) /)[0]; # bump from 19
 
 =head1 SYNOPSIS
 
