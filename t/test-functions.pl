@@ -22,7 +22,6 @@ sub has_svn {
     return 1;
 }
 
-
 our $T;
 
 sub newdir {
@@ -80,8 +79,8 @@ sub set_hook {
     my ($text) = @_;
     open my $fd, '>', "$T/repo/hooks/svn-hooks.pl"
 	or die "Can't create $T/repo/hooks/svn-hooks.pl: $!";
-    print $fd <<'EOS';
-#!/usr/bin/perl
+    print $fd <<"EOS";
+#!$^X
 use strict;
 use warnings;
 use lib 'blib/lib';
