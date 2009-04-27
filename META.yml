@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                SVN-Hooks
-version:             0.16.52
+version:             0.17.54
 abstract:            A framework for implementing Subversion hooks.
 license:             ~
 author:              
@@ -11,6 +11,7 @@ requires:
     Email::Send:                   0
     Email::Simple:                 0
     Email::Simple::Creator:        0
+    JIRA::Client:                  0
     SVN::Look:                     0
     SVN::Notify:                   0
     Test::More:                    0
