@@ -164,6 +164,14 @@ qr/Regexp/.
         check_one   => \&is_scheduled,
     });
 
+Note that you need to call CHECK_JIRA at least once with a qr/Regexp/
+in order to trigger the checks. A call for (C<'default'> doesn't
+count. If you want to change defaults and force checks for every
+commit, do this:
+
+    CHECK_JIRA(default => {projects => 'CDS'});
+    CHECK_JIRA(qr/./);
+
 =cut
 
 sub _validate_projects {
@@ -272,7 +280,7 @@ sub _check_jira {
 	}
 	if ($opts->{by_assignee}) {
 	    my $author = $svnlook->author();
-	    die "$HOOK: committer ($author) is different from issue $key's assignee ($issue->{assignee}).\n"
+	    die "$HOOK: committer ($author) is different from issue ${key}'s assignee ($issue->{assignee}).\n"
 		if $author ne $issue->{assignee};
 	}
 	if (my $check = $opts->{check_one}) {
@@ -289,22 +297,18 @@ sub _check_jira {
 sub pre_commit {
     my ($self, $svnlook) = @_;
 
-    if (@{$self->{checks}}) {
-	my @files = $svnlook->changed();
-	foreach my $check (@{$self->{checks}}) {
-	    my ($regex, $opts) = @$check;
+    my @files = $svnlook->changed();
 
-	    for my $file (@files) {
-		if ($file =~ $regex) {
-		    my %opts = (%{$self->{defaults}}, %$opts);
-		    _check_jira($self, $svnlook, \%opts);
-		    last;
-		}
+    foreach my $check (@{$self->{checks}}) {
+	my ($regex, $opts) = @$check;
+
+	for my $file (@files) {
+	    if ($file =~ $regex) {
+		my %opts = (%{$self->{defaults}}, %$opts);
+		_check_jira($self, $svnlook, \%opts);
+		last;
 	    }
 	}
-    }
-    else {
-	_check_jira($self, $svnlook, \%{$self->{defaults}});
     }
 }
 
