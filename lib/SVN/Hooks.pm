@@ -15,11 +15,11 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-Version 0.23
+Version 0.24
 
 =cut
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 =head1 SYNOPSIS
 
@@ -181,7 +181,7 @@ Regexp. Usually used to disallow some characteres in the filenames.
 
 =item SVN::Hooks::Notify
 
-Sends notification emails after succesful commits.
+Sends notification emails after successful commits.
 
 =item SVN::Hooks::UpdateConfFile
 
@@ -339,6 +339,8 @@ sub run_hook {
 	    $hook->($conf, @args);
 	}
     }
+
+    return;
 }
 
 memoize('repo');
@@ -393,6 +395,8 @@ sub _load_configs {
 	}
 	package SVN::Hooks;
     }
+
+    return;
 }
 
 =head1 AUTHOR
