@@ -15,11 +15,11 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-Version 0.28
+Version 0.29
 
 =cut
 
-our $VERSION = '0.28';
+our $VERSION = '0.29';
 
 =head1 SYNOPSIS
 
@@ -90,7 +90,7 @@ comply to a set of policies. The C<post-commit> can be used to log or
 alert interested parties about the commit just done.
 
 There are several useful L<hook scripts
-available|http://subversion.tigris.org/tools_contrib.html#hook_scripts>,
+available|http://svn.apache.org/repos/asf/subversion/trunk/contrib/hook-scripts/>,
 mainly for those three associated with the commit operation. However,
 when you try to combine the functionality of two or more of those
 scripts in a single hook you normally end up facing two problems.
