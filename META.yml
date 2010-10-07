@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               SVN-Hooks
-version:            0.29
+version:            0.30
 abstract:           A framework for implementing Subversion hooks.
 author:
     - Gustavo Chaves <gnustavo@cpan.org>
