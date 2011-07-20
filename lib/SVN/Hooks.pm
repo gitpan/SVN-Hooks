@@ -3,6 +3,7 @@ package SVN::Hooks;
 use warnings;
 use strict;
 use File::Basename;
+use File::Spec::Functions;
 use SVN::Look;
 
 use Exporter qw/import/;
@@ -17,13 +18,13 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-Version 0.91
+Version 1.00
 
 =cut
 
-our $VERSION = '0.91';
+our $VERSION = '1.00';
 
-our @Conf_Files = ('conf/svn-hooks.conf');
+our @Conf_Files = (catfile('conf', 'svn-hooks.conf'));
 our $Repo       = undef;
 our %Hooks      = ();
 
@@ -38,12 +39,13 @@ sub run_hook {
 
     # Reload all configuration files
     foreach my $conf (@Conf_Files) {
-	next unless -e "$Repo/$conf"; # Configuration files are optional
+	my $conffile = catfile($Repo, $conf);
+	next unless -e $conffile; # Configuration files are optional
 	package main;
-	unless (my $return = do "$Repo/$conf") {
-	    die "couldn't parse '$Repo/$conf': $@\n" if $@;
-	    die "couldn't do '$Repo/$conf': $!\n"    unless defined $return;
-	    die "couldn't run '$Repo/$conf'\n"       unless $return;
+	unless (my $return = do $conffile) {
+	    die "couldn't parse '$conffile': $@\n" if $@;
+	    die "couldn't do '$conffile': $!\n"    unless defined $return;
+	    die "couldn't run '$conffile'\n"       unless $return;
 	}
     }
 
