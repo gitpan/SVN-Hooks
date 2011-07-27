@@ -18,11 +18,11 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-Version 1.01
+Version 1.02
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 our @Conf_Files = (catfile('conf', 'svn-hooks.conf'));
 our $Repo       = undef;
@@ -39,7 +39,7 @@ sub run_hook {
 
     # Reload all configuration files
     foreach my $conf (@Conf_Files) {
-	my $conffile = catfile($Repo, $conf);
+	my $conffile = file_name_is_absolute($conf) ? $conf : catfile($Repo, $conf);
 	next unless -e $conffile; # Configuration files are optional
 	package main;
 	unless (my $return = do $conffile) {
