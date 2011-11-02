@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               SVN-Hooks
-version:            1.08
+version:            1.09
 abstract:           A framework for implementing Subversion hooks.
 author:
     - Gustavo Chaves <gnustavo@cpan.org>
@@ -24,7 +24,7 @@ no_index:
     directory:
         - t
         - inc
-generated_by:       ExtUtils::MakeMaker version 6.55_02
+generated_by:       ExtUtils::MakeMaker version 6.56
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4
