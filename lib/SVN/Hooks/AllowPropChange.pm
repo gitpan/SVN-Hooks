@@ -1,7 +1,12 @@
-package SVN::Hooks::AllowPropChange;
-
 use strict;
 use warnings;
+
+package SVN::Hooks::AllowPropChange;
+{
+  $SVN::Hooks::AllowPropChange::VERSION = '1.12';
+}
+# ABSTRACT: Allow changes in revision properties.
+
 use Carp;
 use SVN::Hooks;
 
@@ -9,65 +14,6 @@ use Exporter qw/import/;
 my $HOOK = 'ALLOW_PROP_CHANGE';
 our @EXPORT = ($HOOK);
 
-our $VERSION = $SVN::Hooks::VERSION;
-
-=head1 NAME
-
-SVN::Hooks::AllowPropChange - Allow changes in revision properties.
-
-=head1 SYNOPSIS
-
-This SVN::Hooks plugin is used to allow revision (or non-versioned)
-properties (C<svn:author>, C<svn:date>, and C<svn:log>) to be changed
-by a group of users.
-
-It's active in the C<pre-revprop-change> hook.
-
-It's configured by the following directive.
-
-=head2 ALLOW_PROP_CHANGE(PROP => WHO, ...)
-
-This directive enables the change of revision properties.
-
-By default any change is denied unless explicitly allowed by the
-directive. You can use the directive more than once.
-
-The PROP argument specifies the propertie(s) that are to be configured
-depending on its type. If no argument is given, no user can change any
-property.
-
-=over
-
-=item STRING
-
-Specify a single property by name (C<author>, C<date>, or C<log>).
-
-=item REGEXP
-
-Specify all properties that match the Regexp.
-
-=back
-
-The optional WHO arguments specify the users that are allowed to make
-those changes. If absent, no user can change a log message. Otherwise,
-it specifies the allowed users depending on its type.
-
-=over
-
-=item STRING
-
-Specify a single user by name.
-
-=item REGEXP
-
-Specify the class of users whose names are matched by the Regexp.
-
-=back
-
-	ALLOW_PROP_CHANGE('svn:log' => 'jsilva'); # jsilva can change svn:log
-	ALLOW_PROP_CHANGE(qr/./ => qr/silva$/); # any *silva can change any property
-
-=cut
 
 my @Specs;
 
@@ -126,54 +72,83 @@ sub pre_revprop_change {
     croak "$HOOK: you are not allowed to change property $propname.\n";
 }
 
-=head1 AUTHOR
+1; # End of SVN::Hooks::AllowPropChange
 
-Gustavo Chaves, C<< <gnustavo@cpan.org> >>
+__END__
+=pod
 
-=head1 BUGS
+=head1 NAME
 
-Please report any bugs or feature requests to
-C<bug-svn-hooks-checkproperty at rt.cpan.org>, or through the web
-interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=SVN-Hooks>.  I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
+SVN::Hooks::AllowPropChange - Allow changes in revision properties.
 
-=head1 SUPPORT
+=head1 VERSION
 
-You can find documentation for this module with the perldoc command.
+version 1.12
 
-    perldoc SVN::Hooks
+=head1 SYNOPSIS
 
-You can also look for information at:
+This SVN::Hooks plugin is used to allow revision (or non-versioned)
+properties (C<svn:author>, C<svn:date>, and C<svn:log>) to be changed
+by a group of users.
 
-=over 4
+It's active in the C<pre-revprop-change> hook.
 
-=item * RT: CPAN's request tracker
+It's configured by the following directive.
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=SVN-Hooks>
+=head2 ALLOW_PROP_CHANGE(PROP => WHO, ...)
 
-=item * AnnoCPAN: Annotated CPAN documentation
+This directive enables the change of revision properties.
 
-L<http://annocpan.org/dist/SVN-Hooks>
+By default any change is denied unless explicitly allowed by the
+directive. You can use the directive more than once.
 
-=item * CPAN Ratings
+The PROP argument specifies the propertie(s) that are to be configured
+depending on its type. If no argument is given, no user can change any
+property.
 
-L<http://cpanratings.perl.org/d/SVN-Hooks>
+=over
 
-=item * Search CPAN
+=item STRING
 
-L<http://search.cpan.org/dist/SVN-Hooks>
+Specify a single property by name (C<author>, C<date>, or C<log>).
+
+=item REGEXP
+
+Specify all properties that match the Regexp.
 
 =back
 
-=head1 COPYRIGHT & LICENSE
+The optional WHO arguments specify the users that are allowed to make
+those changes. If absent, no user can change a log message. Otherwise,
+it specifies the allowed users depending on its type.
 
-Copyright 2009-2011 CPqD, all rights reserved.
+=over
 
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+=item STRING
+
+Specify a single user by name.
+
+=item REGEXP
+
+Specify the class of users whose names are matched by the Regexp.
+
+=back
+
+	ALLOW_PROP_CHANGE('svn:log' => 'jsilva'); # jsilva can change svn:log
+	ALLOW_PROP_CHANGE(qr/./ => qr/silva$/); # any *silva can change any property
+
+=for Pod::Coverage pre_revprop_change
+
+=head1 AUTHOR
+
+Gustavo L. de M. Chaves <gnustavo@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by CPqD.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1; # End of SVN::Hooks::AllowPropChange

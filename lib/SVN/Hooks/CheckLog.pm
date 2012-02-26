@@ -1,7 +1,12 @@
-package SVN::Hooks::CheckLog;
-
 use strict;
 use warnings;
+
+package SVN::Hooks::CheckLog;
+{
+  $SVN::Hooks::CheckLog::VERSION = '1.12';
+}
+# ABSTRACT: Check log messages in commits.
+
 use Carp;
 use SVN::Hooks;
 
@@ -9,34 +14,6 @@ use Exporter qw/import/;
 my $HOOK = 'CHECK_LOG';
 our @EXPORT = ($HOOK);
 
-our $VERSION = $SVN::Hooks::VERSION;
-
-=head1 NAME
-
-SVN::Hooks::CheckLog - Check log messages in commits.
-
-=head1 SYNOPSIS
-
-This SVN::Hooks plugin allows one to check if the log message in a
-'svn commit' conforms to a Regexp.
-
-It's active in the C<pre-commit> hook.
-
-It's configured by the following directive.
-
-=head2 CHECK_LOG(REGEXP[, MESSAGE])
-
-The REGEXP argument must be a qr/quoted regexp/ which must match the
-commit log messages. If it doesn't, then the commit is aborted.
-
-The MESSAGE argument is an optional error message that is shown to the
-user in case the check fails.
-
-	CHECK_LOG(qr/.../ => "The log message cannot be empty!");
-	CHECK_LOG(qr/^\[(prj1|prj2|prj3)\]/
-                  => "The log message must start with a project tag.");
-
-=cut
 
 my @checks;
 
@@ -71,54 +48,52 @@ sub pre_commit {
     return;
 }
 
+1; # End of SVN::Hooks::CheckLog
+
+__END__
+=pod
+
+=head1 NAME
+
+SVN::Hooks::CheckLog - Check log messages in commits.
+
+=head1 VERSION
+
+version 1.12
+
+=head1 SYNOPSIS
+
+This SVN::Hooks plugin allows one to check if the log message in a
+'svn commit' conforms to a Regexp.
+
+It's active in the C<pre-commit> hook.
+
+It's configured by the following directive.
+
+=head2 CHECK_LOG(REGEXP[, MESSAGE])
+
+The REGEXP argument must be a qr/quoted regexp/ which must match the
+commit log messages. If it doesn't, then the commit is aborted.
+
+The MESSAGE argument is an optional error message that is shown to the
+user in case the check fails.
+
+	CHECK_LOG(qr/.../ => "The log message cannot be empty!");
+	CHECK_LOG(qr/^\[(prj1|prj2|prj3)\]/
+                  => "The log message must start with a project tag.");
+
+=for Pod::Coverage pre_commit
+
 =head1 AUTHOR
 
-Gustavo Chaves, C<< <gnustavo@cpan.org> >>
+Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to
-C<bug-svn-hooks-checkproperty at rt.cpan.org>, or through the web
-interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=SVN-Hooks>.  I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
+This software is copyright (c) 2012 by CPqD.
 
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc SVN::Hooks
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=SVN-Hooks>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/SVN-Hooks>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/SVN-Hooks>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/SVN-Hooks>
-
-=back
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2008-2011 CPqD, all rights reserved.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1; # End of SVN::Hooks::CheckLog

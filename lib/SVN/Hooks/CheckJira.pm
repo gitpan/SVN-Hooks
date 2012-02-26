@@ -1,7 +1,9 @@
-package SVN::Hooks::CheckJira;
-
 use strict;
 use warnings;
+
+package SVN::Hooks::CheckJira;
+# ABSTRACT: Integrate Subversion with the JIRA ticketing system.
+
 use Carp;
 use SVN::Hooks;
 use JIRA::Client;
@@ -12,53 +14,6 @@ our @EXPORT = qw/CHECK_JIRA_CONFIG CHECK_JIRA/;
 
 our $VERSION = $SVN::Hooks::VERSION;
 
-=head1 NAME
-
-SVN::Hooks::CheckJira - Integrate Subversion with the JIRA ticketing system.
-
-=head1 DESCRIPTION
-
-This SVN::Hooks plugin requires that any Subversion commits affecting
-some parts of the repository structure must make reference to valid
-JIRA issues in the commit log message. JIRA issues are referenced by
-their keys which consists of a sequence of uppercase letters separated
-by an hyfen from a sequence of digits. E.g., CDS-123, RT-1, and
-SVN-97.
-
-It's active in the C<pre-commit> and/or the C<post-commit> hook.
-
-It's configured by the following directives.
-
-=head2 CHECK_JIRA_CONFIG(BASEURL, LOGIN, PASSWORD [, REGEXP [, REGEXP]])
-
-This directive specifies how to connect and to authenticate to the
-JIRA server. BASEURL is the base URL of the JIRA server, usually,
-something like C<http://jira.example.com/jira>. LOGIN and PASSWORD are
-the credentials of a JIRA user who has browsing rights to the JIRA
-projects that will be referenced in the commit logs.
-
-The fourth argument is an optional qr/Regexp/ object. It will be used
-to match against the commit logs in order to extract the list of JIRA
-issue keys. By default, the JIRA keys are looked for in the whole
-commit log, which is equivalent to qr/(.*)/. Sometimes this can be
-suboptimal because the user can introduce in the message some text
-that inadvertently looks like a JIRA issue key whithout being so. With
-this argument, the log message is matched against the REGEXP and only
-the first matched group (i.e., the part of the message captured by the
-first parenthesis (C<$1>)) is used to look for JIRA issue keys.
-
-The fifth argument is another optional qr/Regexp/ object. It is used
-to match JIRA project keys, which match qr/[A-Z]{2,}/ by
-default. However, since you can specify different patterns for JIRA
-project keys
-(L<http://confluence.atlassian.com/display/JIRA/Configuring+Project+Keys>),
-you need to be able to specify this here too.
-
-The JIRA issue keys are extracted from the commit log (or the part of
-it specified by the REGEXP) with the following pattern:
-C<qr/\b([A-Z]+-\d+)\b/g>;
-
-=cut
 
 my ($BaseURL, $Login, $Passwd, $MatchLog, $MatchKey);
 my $JIRA;
@@ -95,160 +50,6 @@ sub CHECK_JIRA_CONFIG {
     return 1;
 }
 
-=head2 CHECK_JIRA(REGEXP => {OPT => VALUE, ...})
-
-This directive tells how each part of the repository structure must be
-integrated with JIRA.
-
-During a commit, all files being changed are tested against the REGEXP
-of each CHECK_JIRA directive, in the order that they were called. If
-at least one changed file matches a regexp, the issues cited in the
-commit log are checked against their current status on JIRA according
-to the options specified after the REGEXP.
-
-The available options are the following:
-
-=over
-
-=item projects => 'PROJKEYS'
-
-By default, the commiter can reference any JIRA issue in the commit
-log. You can restrict the allowed keys to a set of JIRA projects by
-specifying a comma-separated list of project keys to this option.
-
-=item require => [01]
-
-By default, the log must reference at least one JIRA issue. You can
-make the reference optional by passing a false value to this option.
-
-=item valid => [01]
-
-By default, every issue referenced must be valid, i.e., it must exist
-on the JIRA server. You can relax this requirement by passing a false
-value to this option. (Why would you want to do that, though?)
-
-=item unresolved => [01]
-
-By default, every issue referenced must be unresolved, i.e., it must
-not have a resolution. You can relax this requirement by passing a
-false value to this option.
-
-=item by_assignee => [01]
-
-By default, the commiter can reference any valid JIRA issue. Passing a
-true value to this option you require that the commiter can only
-reference issues to which she is the current assignee.
-
-=item check_one => CODE-REF
-
-If the above checks aren't enough you can pass a code reference
-(subroutine) to this option. The subroutine will be called once for
-each referenced issue with three arguments:
-
-=over
-
-=item the JIRA::Client object used to talk to the JIRA server.
-
-=item the RemoteIssue object representing the issue.
-
-=item the SVN::Look object used to grok information about the commit.
-
-=back
-
-The subroutine must simply return with no value to indicate success
-and must die to indicate failure.
-
-Plese, read the JIRA::Client and SVN::Look modules documentation to
-understand how to use these objects.
-
-=item check_all => CODE-REF
-
-Sometimes checking each issue separatelly isn't enough. You may want
-to check some relation among all the referenced issues. In this case,
-pass a code reference to this option. It will be called once for the
-commit. Its first argument is the JIRA::Client object used to talk to
-the JIRA server. The following arguments are references to RemoteIssue
-objects for every referenced issue. The last argument is the SVN::Look
-object used to grok information about the commit. The subroutine must
-simply return with no value to indicate success and must die to
-indicate failure.
-
-=item check_all_svnlook => CODE-REF
-
-This check is the same as the previous one, except that the first
-argument passed to the routine is the SVN::Look object used to grok
-information about the commit. The rest of the arguments are the same.
-
-=item post_action => CODE-REF
-
-This is not a check, but an opportunity to perform some action after a
-successful commit. The code reference passed will be called once
-during the post-commit hook phase. Its first argument is the
-JIRA::Client object used to talk to the JIRA server. The second
-argument is the SVN::Look object that can be used to inspect all the
-information about the commit proper.  The following arguments are the
-JIRA keys mentioned in the commit log message. The value returned by
-the routine, if any, is ignored.
-
-=back
-
-You can set defaults for these options using a CHECK_JIRA directive
-with the string C<'default'> as a first argument, instead of a
-qr/Regexp/.
-
-    # Set some defaults
-    CHECK_JIRA(default => {
-        projects    => 'CDS,TST',
-        by_assignee => 1,
-    });
-
-    # Check if some commits are scheduled, i.e., if they reference
-    # JIRA issues that have at least one fix version.
-
-    sub is_scheduled {
-        my ($jira, $issue, $svnlook) = @_;
-        return scalar @{$issue->{fixVersions}};
-    }
-    CHECK_JIRA(qr/^(trunk|branches/fix)/ => {
-        check_one   => \&is_scheduled,
-    });
-
-Note that you need to call CHECK_JIRA at least once with a qr/Regexp/
-in order to trigger the checks. A call for (C<'default'> doesn't
-count. If you want to change defaults and force checks for every
-commit, do this:
-
-    CHECK_JIRA(default => {projects => 'CDS'});
-    CHECK_JIRA(qr/./);
-
-The C<'post_action'> pseudo-check can be used to interact with the
-JIRA server after a successful commit. For instance, you may want to
-add a comment to each refered issue like this:
-
-    # This routine returns a closure that can be passed to
-    # post_action.  The closure receives a string to be added as a
-    # comment to each issue refered to by the commit message. The
-    # commit info can be interpolated inside the comment using the
-    # SVN::Look method names inside angle brackets.
-
-    sub add_comment {
-        my ($format) = @_;
-        return sub {
-            my ($jira, $svnlook, @keys) = @_;
-            # Substitute keywords in the input comment with calls
-            # into the $svnlook reference
-	    $format =~ s/\{(\w+)\}/"\$svnlook->$1()"/eeg;
-            for my $key (@keys) {
-                $jira->addComment($key, $format);
-            }
-        }
-    }
-
-    CHECK_JIRA(qr/./ => {
-        post_action => add_comment("Subversion Commit r{rev} by {author} on {date}\n{log_msg}")
-    });
-
-=cut
 
 sub _validate_projects {
     my ($opt, $val) = @_;
@@ -421,54 +222,226 @@ sub post_commit {
     return;
 }
 
-=head1 AUTHOR
+1; # End of SVN::Hooks::CheckJira
 
-Gustavo Chaves, C<< <gnustavo@cpan.org> >>
+__END__
+=pod
 
-=head1 BUGS
+=head1 NAME
 
-Please report any bugs or feature requests to
-C<bug-svn-hooks at rt.cpan.org>, or through the web
-interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=SVN-Hooks>.  I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
+SVN::Hooks::CheckJira - Integrate Subversion with the JIRA ticketing system.
 
-=head1 SUPPORT
+=head1 VERSION
 
-You can find documentation for this module with the perldoc command.
+version 1.12
 
-    perldoc SVN::Hooks
+=head1 DESCRIPTION
 
-You can also look for information at:
+This SVN::Hooks plugin requires that any Subversion commits affecting
+some parts of the repository structure must make reference to valid
+JIRA issues in the commit log message. JIRA issues are referenced by
+their keys which consists of a sequence of uppercase letters separated
+by an hyfen from a sequence of digits. E.g., CDS-123, RT-1, and
+SVN-97.
 
-=over 4
+It's active in the C<pre-commit> and/or the C<post-commit> hook.
 
-=item * RT: CPAN's request tracker
+It's configured by the following directives.
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=SVN-Hooks>
+=head2 CHECK_JIRA_CONFIG(BASEURL, LOGIN, PASSWORD [, REGEXP [, REGEXP]])
 
-=item * AnnoCPAN: Annotated CPAN documentation
+This directive specifies how to connect and to authenticate to the
+JIRA server. BASEURL is the base URL of the JIRA server, usually,
+something like C<http://jira.example.com/jira>. LOGIN and PASSWORD are
+the credentials of a JIRA user who has browsing rights to the JIRA
+projects that will be referenced in the commit logs.
 
-L<http://annocpan.org/dist/SVN-Hooks>
+The fourth argument is an optional qr/Regexp/ object. It will be used
+to match against the commit logs in order to extract the list of JIRA
+issue keys. By default, the JIRA keys are looked for in the whole
+commit log, which is equivalent to qr/(.*)/. Sometimes this can be
+suboptimal because the user can introduce in the message some text
+that inadvertently looks like a JIRA issue key whithout being so. With
+this argument, the log message is matched against the REGEXP and only
+the first matched group (i.e., the part of the message captured by the
+first parenthesis (C<$1>)) is used to look for JIRA issue keys.
 
-=item * CPAN Ratings
+The fifth argument is another optional qr/Regexp/ object. It is used
+to match JIRA project keys, which match qr/[A-Z]{2,}/ by
+default. However, since you can specify different patterns for JIRA
+project keys
+(L<http://confluence.atlassian.com/display/JIRA/Configuring+Project+Keys>),
+you need to be able to specify this here too.
 
-L<http://cpanratings.perl.org/d/SVN-Hooks>
+The JIRA issue keys are extracted from the commit log (or the part of
+it specified by the REGEXP) with the following pattern:
+C<qr/\b([A-Z]+-\d+)\b/g>;
 
-=item * Search CPAN
+=head2 CHECK_JIRA(REGEXP => {OPT => VALUE, ...})
 
-L<http://search.cpan.org/dist/SVN-Hooks>
+This directive tells how each part of the repository structure must be
+integrated with JIRA.
+
+During a commit, all files being changed are tested against the REGEXP
+of each CHECK_JIRA directive, in the order that they were called. If
+at least one changed file matches a regexp, the issues cited in the
+commit log are checked against their current status on JIRA according
+to the options specified after the REGEXP.
+
+The available options are the following:
+
+=over
+
+=item projects => 'PROJKEYS'
+
+By default, the commiter can reference any JIRA issue in the commit
+log. You can restrict the allowed keys to a set of JIRA projects by
+specifying a comma-separated list of project keys to this option.
+
+=item require => [01]
+
+By default, the log must reference at least one JIRA issue. You can
+make the reference optional by passing a false value to this option.
+
+=item valid => [01]
+
+By default, every issue referenced must be valid, i.e., it must exist
+on the JIRA server. You can relax this requirement by passing a false
+value to this option. (Why would you want to do that, though?)
+
+=item unresolved => [01]
+
+By default, every issue referenced must be unresolved, i.e., it must
+not have a resolution. You can relax this requirement by passing a
+false value to this option.
+
+=item by_assignee => [01]
+
+By default, the commiter can reference any valid JIRA issue. Passing a
+true value to this option you require that the commiter can only
+reference issues to which she is the current assignee.
+
+=item check_one => CODE-REF
+
+If the above checks aren't enough you can pass a code reference
+(subroutine) to this option. The subroutine will be called once for
+each referenced issue with three arguments:
+
+=over
+
+=item the JIRA::Client object used to talk to the JIRA server.
+
+=item the RemoteIssue object representing the issue.
+
+=item the SVN::Look object used to grok information about the commit.
 
 =back
 
-=head1 COPYRIGHT & LICENSE
+The subroutine must simply return with no value to indicate success
+and must die to indicate failure.
 
-Copyright 2009-2011 CPqD, all rights reserved.
+Plese, read the JIRA::Client and SVN::Look modules documentation to
+understand how to use these objects.
 
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+=item check_all => CODE-REF
+
+Sometimes checking each issue separatelly isn't enough. You may want
+to check some relation among all the referenced issues. In this case,
+pass a code reference to this option. It will be called once for the
+commit. Its first argument is the JIRA::Client object used to talk to
+the JIRA server. The following arguments are references to RemoteIssue
+objects for every referenced issue. The last argument is the SVN::Look
+object used to grok information about the commit. The subroutine must
+simply return with no value to indicate success and must die to
+indicate failure.
+
+=item check_all_svnlook => CODE-REF
+
+This check is the same as the previous one, except that the first
+argument passed to the routine is the SVN::Look object used to grok
+information about the commit. The rest of the arguments are the same.
+
+=item post_action => CODE-REF
+
+This is not a check, but an opportunity to perform some action after a
+successful commit. The code reference passed will be called once
+during the post-commit hook phase. Its first argument is the
+JIRA::Client object used to talk to the JIRA server. The second
+argument is the SVN::Look object that can be used to inspect all the
+information about the commit proper.  The following arguments are the
+JIRA keys mentioned in the commit log message. The value returned by
+the routine, if any, is ignored.
+
+=back
+
+You can set defaults for these options using a CHECK_JIRA directive
+with the string C<'default'> as a first argument, instead of a
+qr/Regexp/.
+
+    # Set some defaults
+    CHECK_JIRA(default => {
+        projects    => 'CDS,TST',
+        by_assignee => 1,
+    });
+
+    # Check if some commits are scheduled, i.e., if they reference
+    # JIRA issues that have at least one fix version.
+
+    sub is_scheduled {
+        my ($jira, $issue, $svnlook) = @_;
+        return scalar @{$issue->{fixVersions}};
+    }
+    CHECK_JIRA(qr/^(trunk|branches/fix)/ => {
+        check_one   => \&is_scheduled,
+    });
+
+Note that you need to call CHECK_JIRA at least once with a qr/Regexp/
+in order to trigger the checks. A call for (C<'default'> doesn't
+count. If you want to change defaults and force checks for every
+commit, do this:
+
+    CHECK_JIRA(default => {projects => 'CDS'});
+    CHECK_JIRA(qr/./);
+
+The C<'post_action'> pseudo-check can be used to interact with the
+JIRA server after a successful commit. For instance, you may want to
+add a comment to each refered issue like this:
+
+    # This routine returns a closure that can be passed to
+    # post_action.  The closure receives a string to be added as a
+    # comment to each issue refered to by the commit message. The
+    # commit info can be interpolated inside the comment using the
+    # SVN::Look method names inside angle brackets.
+
+    sub add_comment {
+        my ($format) = @_;
+        return sub {
+            my ($jira, $svnlook, @keys) = @_;
+            # Substitute keywords in the input comment with calls
+            # into the $svnlook reference
+	    $format =~ s/\{(\w+)\}/"\$svnlook->$1()"/eeg;
+            for my $key (@keys) {
+                $jira->addComment($key, $format);
+            }
+        }
+    }
+
+    CHECK_JIRA(qr/./ => {
+        post_action => add_comment("Subversion Commit r{rev} by {author} on {date}\n{log_msg}")
+    });
+
+=for Pod::Coverage post_commit pre_commit
+
+=head1 AUTHOR
+
+Gustavo L. de M. Chaves <gnustavo@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by CPqD.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1; # End of SVN::Hooks::CheckJira

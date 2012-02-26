@@ -1,7 +1,12 @@
-package SVN::Hooks::DenyChanges;
-
 use strict;
 use warnings;
+
+package SVN::Hooks::DenyChanges;
+{
+  $SVN::Hooks::DenyChanges::VERSION = '1.12';
+}
+# ABSTRACT: Deny some changes in a repository.
+
 use Carp;
 use SVN::Hooks;
 
@@ -9,52 +14,6 @@ use Exporter qw/import/;
 my $HOOK = 'DENY_CHANGES';
 our @EXPORT = ('DENY_ADDITION', 'DENY_DELETION', 'DENY_UPDATE', 'DENY_EXCEPT_USERS');
 
-our $VERSION = $SVN::Hooks::VERSION;
-
-=head1 NAME
-
-SVN::Hooks::DenyChanges - Deny some changes in a repository.
-
-=head1 SYNOPSIS
-
-This SVN::Hooks plugin is used to disallow the addition, deletion, or
-modification of parts of the repository structure.
-
-It's active in the C<pre-commit> hook.
-
-It's configured by the following directives.
-
-=head2 DENY_ADDITION(REGEXP, ...)
-
-This directive denies the addition of new files matching the Regexps
-passed as arguments.
-
-	DENY_ADDITION(qr/\.(doc|xls|ppt)$/); # ODF only, please
-
-=head2 DENY_DELETION(REGEXP, ...)
-
-This directive denies the deletion of files matching the Regexps
-passed as arguments.
-
-	DENY_DELETION(qr/contract/); # Can't delete contracts
-
-=head2 DENY_UPDATE(REGEXP, ...)
-
-This directive denies the modification of files matching the Regexps
-passed as arguments.
-
-	DENY_UPDATE(qr/^tags/); # Can't modify tags
-
-=head2 DENY_EXCEPT_USERS(LIST)
-
-This directive receives a list of user names which are to be exempt
-from the rules specified by the other directives.
-
-	DENY_EXCEPT_USERS(qw/john mary/);
-
-This rule exempts users C<john> and C<mary> from the other deny rules.
-
-=cut
 
 my %Deny;			# List of deny regexen
 my %Except;			# Users exempt from the checks
@@ -145,54 +104,70 @@ sub pre_commit {
     return;
 }
 
+1; # End of SVN::Hooks::CheckMimeTypes
+
+__END__
+=pod
+
+=head1 NAME
+
+SVN::Hooks::DenyChanges - Deny some changes in a repository.
+
+=head1 VERSION
+
+version 1.12
+
+=head1 SYNOPSIS
+
+This SVN::Hooks plugin is used to disallow the addition, deletion, or
+modification of parts of the repository structure.
+
+It's active in the C<pre-commit> hook.
+
+It's configured by the following directives.
+
+=head2 DENY_ADDITION(REGEXP, ...)
+
+This directive denies the addition of new files matching the Regexps
+passed as arguments.
+
+	DENY_ADDITION(qr/\.(doc|xls|ppt)$/); # ODF only, please
+
+=head2 DENY_DELETION(REGEXP, ...)
+
+This directive denies the deletion of files matching the Regexps
+passed as arguments.
+
+	DENY_DELETION(qr/contract/); # Can't delete contracts
+
+=head2 DENY_UPDATE(REGEXP, ...)
+
+This directive denies the modification of files matching the Regexps
+passed as arguments.
+
+	DENY_UPDATE(qr/^tags/); # Can't modify tags
+
+=head2 DENY_EXCEPT_USERS(LIST)
+
+This directive receives a list of user names which are to be exempt
+from the rules specified by the other directives.
+
+	DENY_EXCEPT_USERS(qw/john mary/);
+
+This rule exempts users C<john> and C<mary> from the other deny rules.
+
+=for Pod::Coverage pre_commit
+
 =head1 AUTHOR
 
-Gustavo Chaves, C<< <gnustavo@cpan.org> >>
+Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to
-C<bug-svn-hooks-checkmimetypes at rt.cpan.org>, or through the web
-interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=SVN-Hooks>.  I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
+This software is copyright (c) 2012 by CPqD.
 
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc SVN::Hooks
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=SVN-Hooks>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/SVN-Hooks>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/SVN-Hooks>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/SVN-Hooks>
-
-=back
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2008-2011 CPqD, all rights reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1; # End of SVN::Hooks::CheckMimeTypes

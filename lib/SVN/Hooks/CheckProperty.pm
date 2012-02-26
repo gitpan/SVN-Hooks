@@ -1,7 +1,12 @@
-package SVN::Hooks::CheckProperty;
-
 use strict;
 use warnings;
+
+package SVN::Hooks::CheckProperty;
+{
+  $SVN::Hooks::CheckProperty::VERSION = '1.12';
+}
+# ABSTRACT: Check properties in added files.
+
 use Carp;
 use SVN::Hooks;
 
@@ -9,61 +14,6 @@ use Exporter qw/import/;
 my $HOOK = 'CHECK_PROPERTY';
 our @EXPORT = ($HOOK);
 
-our $VERSION = $SVN::Hooks::VERSION;
-
-=head1 NAME
-
-SVN::Hooks::CheckProperty - Check properties in added files.
-
-=head1 SYNOPSIS
-
-This SVN::Hooks plugin checks if some files added to the repository
-have some properties set.
-
-It's active in the C<pre-commit> hook.
-
-It's configured by the following directive.
-
-=head2 CHECK_PROPERTY(WHERE, PROPERTY[, VALUE])
-
-This directive enables the checking, causing the commit to abort if it
-doesn't comply.
-
-The WHERE argument must be a qr/Regexp/ matching all files that must
-comply to this rule.
-
-The PROPERTY argument is the name of the property that must be set for
-the files matching WHERE.
-
-The optional VALUE argument specifies the value for PROPERTY depending
-on its type:
-
-=over
-
-=item UNDEF or not present
-
-The PROPERTY must be set.
-
-=item NUMBER
-
-If non-zero, the PROPERTY must be set. If zero, the PROPERTY must NOT be set.
-
-=item STRING
-
-The PROPERTY must be set with a value equal to the string.
-
-=item qr/Regexp/
-
-The PROPERTY must be set with a value that matches the Regexp.
-
-=back
-
-Example:
-
-	CHECK_PROPERTY(qr/\.(?:do[ct]|od[bcfgimpst]|ot[ghpst]|pp[st]|xl[bst])$/i
-	       => 'svn:needs-lock');
-
-=cut
 
 my @Checks;
 
@@ -131,54 +81,79 @@ sub pre_commit {
     return;
 }
 
-=head1 AUTHOR
+1; # End of SVN::Hooks::CheckProperty
 
-Gustavo Chaves, C<< <gnustavo@cpan.org> >>
+__END__
+=pod
 
-=head1 BUGS
+=head1 NAME
 
-Please report any bugs or feature requests to
-C<bug-svn-hooks-checkproperty at rt.cpan.org>, or through the web
-interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=SVN-Hooks>.  I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
+SVN::Hooks::CheckProperty - Check properties in added files.
 
-=head1 SUPPORT
+=head1 VERSION
 
-You can find documentation for this module with the perldoc command.
+version 1.12
 
-    perldoc SVN::Hooks
+=head1 SYNOPSIS
 
-You can also look for information at:
+This SVN::Hooks plugin checks if some files added to the repository
+have some properties set.
 
-=over 4
+It's active in the C<pre-commit> hook.
 
-=item * RT: CPAN's request tracker
+It's configured by the following directive.
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=SVN-Hooks>
+=head2 CHECK_PROPERTY(WHERE, PROPERTY[, VALUE])
 
-=item * AnnoCPAN: Annotated CPAN documentation
+This directive enables the checking, causing the commit to abort if it
+doesn't comply.
 
-L<http://annocpan.org/dist/SVN-Hooks>
+The WHERE argument must be a qr/Regexp/ matching all files that must
+comply to this rule.
 
-=item * CPAN Ratings
+The PROPERTY argument is the name of the property that must be set for
+the files matching WHERE.
 
-L<http://cpanratings.perl.org/d/SVN-Hooks>
+The optional VALUE argument specifies the value for PROPERTY depending
+on its type:
 
-=item * Search CPAN
+=over
 
-L<http://search.cpan.org/dist/SVN-Hooks>
+=item UNDEF or not present
+
+The PROPERTY must be set.
+
+=item NUMBER
+
+If non-zero, the PROPERTY must be set. If zero, the PROPERTY must NOT be set.
+
+=item STRING
+
+The PROPERTY must be set with a value equal to the string.
+
+=item qr/Regexp/
+
+The PROPERTY must be set with a value that matches the Regexp.
 
 =back
 
-=head1 COPYRIGHT & LICENSE
+Example:
 
-Copyright 2008-2011 CPqD, all rights reserved.
+	CHECK_PROPERTY(qr/\.(?:do[ct]|od[bcfgimpst]|ot[ghpst]|pp[st]|xl[bst])$/i
+	       => 'svn:needs-lock');
 
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+=for Pod::Coverage pre_commit
+
+=head1 AUTHOR
+
+Gustavo L. de M. Chaves <gnustavo@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by CPqD.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1; # End of SVN::Hooks::CheckProperty

@@ -1,7 +1,12 @@
-package SVN::Hooks::CheckStructure;
-
 use strict;
 use warnings;
+
+package SVN::Hooks::CheckStructure;
+{
+  $SVN::Hooks::CheckStructure::VERSION = '1.12';
+}
+# ABSTRACT: Check the structure of a repository.
+
 use Carp;
 use SVN::Hooks;
 
@@ -9,11 +14,128 @@ use Exporter qw/import/;
 my $HOOK = 'CHECK_STRUCTURE';
 our @EXPORT = ($HOOK, 'check_structure');
 
-our $VERSION = $SVN::Hooks::VERSION;
+
+my $Structure;
+
+sub CHECK_STRUCTURE {
+    ($Structure) = @_;
+
+    PRE_COMMIT(\&pre_commit);
+
+    return 1;
+}
+
+sub _check_structure {
+    my ($structure, $path) = @_;
+
+    @$path > 0 or croak "Can't happen!";
+
+    if (! ref $structure) {
+	if ($structure eq 'DIR') {
+	    return (1) if @$path > 1;
+	    return (0, "the component ($path->[0]) should be a DIR in");
+	}
+	elsif ($structure eq 'FILE') {
+	    return (0, "the component ($path->[0]) should be a FILE in") if @$path > 1;
+	    return (1);
+	}
+	elsif ($structure =~ /^\d+$/) {
+	    return (1) if $structure;
+	    return (0, "invalid path");
+	}
+	else {
+	    return (0, "syntax error: unknown string spec ($structure), while checking");
+	}
+    }
+    elsif (ref $structure eq 'ARRAY') {
+	return (0, "syntax error: odd number of elements in the structure spec, while checking")
+	    unless scalar(@$structure) % 2 == 0;
+	return (0, "the component ($path->[0]) should be a DIR in")
+	    unless @$path > 1;
+	shift @$path;
+	# Return ok if the directory doesn't have subcomponents.
+	return (1) if @$path == 1 && length($path->[0]) == 0;
+
+	for (my $s=0; $s<$#$structure; $s+=2) {
+	    my ($lhs, $rhs) = @{$structure}[$s, $s+1];
+	    if (! ref $lhs) {
+		if ($lhs eq $path->[0]) {
+		    return _check_structure($rhs, $path);
+		}
+		elsif ($lhs =~ /^\d+$/) {
+		    if ($lhs) {
+			return _check_structure($rhs, $path);
+		    }
+		    elsif (! ref $rhs) {
+			return (0, "$rhs, while checking");
+		    }
+		    else {
+			return (0, "syntax error: the right hand side of a number must be string, while checking");
+		    }
+		}
+	    }
+	    elsif (ref $lhs eq 'Regexp') {
+		if ($path->[0] =~ $lhs) {
+		    return _check_structure($rhs, $path);
+		}
+	    }
+	    else {
+		my $what = ref $lhs;
+		return (0, "syntax error: the left hand side of arrays in the structure spec must be scalars or qr/Regexes/, not $what, while checking");
+	    }
+	}
+	return (0, "the component ($path->[0]) is not allowed in");
+    }
+    else {
+	my $what = ref $structure;
+	return (0, "syntax error: invalid reference to a $what in the structure spec, while checking");
+    }
+}
+
+
+sub check_structure {
+    my ($structure, $path) = @_;
+    $path = "/$path" unless $path =~ m@^/@; # make sure it's an absolute path
+    my @path = split '/', $path, -1; # preserve trailing empty components
+    my ($code, $error) = _check_structure($structure, \@path);
+    croak "$error: $path\n" if $code == 0;
+    return 1;
+}
+
+sub pre_commit {
+    my ($svnlook) = @_;
+
+    my @errors;
+
+    foreach my $added ($svnlook->added()) {
+	# Split the $added path in its components. We prefix $added
+	# with a slash to make it look like an absolute path for
+	# _check_structure. The '-1' is to preserve trailing empty
+	# components so that we can differentiate directory paths from
+	# file paths.
+	my @added = split '/', "/$added", -1;
+	my ($code, $error) = _check_structure($Structure, \@added);
+	push @errors, "$error: $added" if $code == 0;
+    }
+
+    croak join("\n", "$HOOK:", @errors), "\n"
+	if @errors;
+
+    return;
+}
+
+1; # End of SVN::Hooks::CheckStructure
+
+__END__
+=pod
 
 =head1 NAME
 
 SVN::Hooks::CheckStructure - Check the structure of a repository.
+
+=head1 VERSION
+
+version 1.12
 
 =head1 SYNOPSIS
 
@@ -128,84 +250,7 @@ C<trunk>, which is made easier by the use of the C<$project_struct>
 variable. Moreover, we impose some restrictions on the names of the
 tags and the branches.
 
-=cut
-
-my $Structure;
-
-sub CHECK_STRUCTURE {
-    ($Structure) = @_;
-
-    PRE_COMMIT(\&pre_commit);
-
-    return 1;
-}
-
-sub _check_structure {
-    my ($structure, $path) = @_;
-
-    @$path > 0 or croak "Can't happen!";
-
-    if (! ref $structure) {
-	if ($structure eq 'DIR') {
-	    return (1) if @$path > 1;
-	    return (0, "the component ($path->[0]) should be a DIR in");
-	}
-	elsif ($structure eq 'FILE') {
-	    return (0, "the component ($path->[0]) should be a FILE in") if @$path > 1;
-	    return (1);
-	}
-	elsif ($structure =~ /^\d+$/) {
-	    return (1) if $structure;
-	    return (0, "invalid path");
-	}
-	else {
-	    return (0, "syntax error: unknown string spec ($structure), while checking");
-	}
-    }
-    elsif (ref $structure eq 'ARRAY') {
-	return (0, "syntax error: odd number of elements in the structure spec, while checking")
-	    unless scalar(@$structure) % 2 == 0;
-	return (0, "the component ($path->[0]) should be a DIR in")
-	    unless @$path > 1;
-	shift @$path;
-	# Return ok if the directory doesn't have subcomponents.
-	return (1) if @$path == 1 && length($path->[0]) == 0;
-
-	for (my $s=0; $s<$#$structure; $s+=2) {
-	    my ($lhs, $rhs) = @{$structure}[$s, $s+1];
-	    if (! ref $lhs) {
-		if ($lhs eq $path->[0]) {
-		    return _check_structure($rhs, $path);
-		}
-		elsif ($lhs =~ /^\d+$/) {
-		    if ($lhs) {
-			return _check_structure($rhs, $path);
-		    }
-		    elsif (! ref $rhs) {
-			return (0, "$rhs, while checking");
-		    }
-		    else {
-			return (0, "syntax error: the right hand side of a number must be string, while checking");
-		    }
-		}
-	    }
-	    elsif (ref $lhs eq 'Regexp') {
-		if ($path->[0] =~ $lhs) {
-		    return _check_structure($rhs, $path);
-		}
-	    }
-	    else {
-		my $what = ref $lhs;
-		return (0, "syntax error: the left hand side of arrays in the structure spec must be scalars or qr/Regexes/, not $what, while checking");
-	    }
-	}
-	return (0, "the component ($path->[0]) is not allowed in");
-    }
-    else {
-	my $what = ref $structure;
-	return (0, "syntax error: invalid reference to a $what in the structure spec, while checking");
-    }
-}
+=for Pod::Coverage pre_commit
 
 =head1 EXPORT
 
@@ -229,87 +274,16 @@ ls' command, i.e., with no leading slashes and with a trailing slash
 to indicate directories. The leading slash is assumed if it's missing,
 but the trailing slash is needed to indicate directories.
 
-=cut
-
-sub check_structure {
-    my ($structure, $path) = @_;
-    $path = "/$path" unless $path =~ m@^/@; # make sure it's an absolute path
-    my @path = split '/', $path, -1; # preserve trailing empty components
-    my ($code, $error) = _check_structure($structure, \@path);
-    croak "$error: $path\n" if $code == 0;
-    return 1;
-}
-
-sub pre_commit {
-    my ($svnlook) = @_;
-
-    my @errors;
-
-    foreach my $added ($svnlook->added()) {
-	# Split the $added path in its components. We prefix $added
-	# with a slash to make it look like an absolute path for
-	# _check_structure. The '-1' is to preserve trailing empty
-	# components so that we can differentiate directory paths from
-	# file paths.
-	my @added = split '/', "/$added", -1;
-	my ($code, $error) = _check_structure($Structure, \@added);
-	push @errors, "$error: $added" if $code == 0;
-    }
-
-    croak join("\n", "$HOOK:", @errors), "\n"
-	if @errors;
-
-    return;
-}
-
 =head1 AUTHOR
 
-Gustavo Chaves, C<< <gnustavo@cpan.org> >>
+Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to
-C<bug-svn-hooks-checkstructure at rt.cpan.org>, or through the web
-interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=SVN-Hooks>.  I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
+This software is copyright (c) 2012 by CPqD.
 
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc SVN::Hooks
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=SVN-Hooks>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/SVN-Hooks>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/SVN-Hooks>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/SVN-Hooks>
-
-=back
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2008-2011 CPqD, all rights reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1; # End of SVN::Hooks::CheckStructure

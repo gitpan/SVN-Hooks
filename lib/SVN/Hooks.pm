@@ -1,7 +1,12 @@
-package SVN::Hooks;
-
 use warnings;
 use strict;
+
+package SVN::Hooks;
+{
+  $SVN::Hooks::VERSION = '1.12';
+}
+# ABSTRACT: A framework for implementing Subversion hooks.
+
 use File::Basename;
 use File::Spec::Functions;
 use SVN::Look;
@@ -11,18 +16,6 @@ use Exporter qw/import/;
 our @EXPORT = qw/run_hook POST_COMMIT POST_LOCK POST_REVPROP_CHANGE
                  POST_UNLOCK PRE_COMMIT PRE_LOCK PRE_REVPROP_CHANGE
                  PRE_UNLOCK START_COMMIT/;
-
-=head1 NAME
-
-SVN::Hooks - A framework for implementing Subversion hooks.
-
-=head1 VERSION
-
-Version 1.11
-
-=cut
-
-our $VERSION = '1.11';
 
 our @Conf_Files = (catfile('conf', 'svn-hooks.conf'));
 our $Repo       = undef;
@@ -42,6 +35,9 @@ sub run_hook {
 	my $conffile = file_name_is_absolute($conf) ? $conf : catfile($Repo, $conf);
 	next unless -e $conffile; # Configuration files are optional
 	package main;
+{
+  $main::VERSION = '1.12';
+}
 	unless (my $return = do $conffile) {
 	    die "couldn't parse '$conffile': $@\n" if $@;
 	    die "couldn't do '$conffile': $!\n"    unless defined $return;
@@ -139,7 +135,17 @@ sub START_COMMIT (&) {
 }
 
 1; # End of SVN::Hooks
-__END__
+
+
+=pod
+
+=head1 NAME
+
+SVN::Hooks - A framework for implementing Subversion hooks.
+
+=head1 VERSION
+
+version 1.12
 
 =head1 SYNOPSIS
 
@@ -172,6 +178,8 @@ Or you can use already implemented hooks via plugins:
 	...
 
 	run_hook($0, @ARGV);
+
+=for Pod::Coverage run_hook POST_COMMIT POST_LOCK POST_REVPROP_CHANGE POST_UNLOCK PRE_COMMIT PRE_LOCK PRE_REVPROP_CHANGE PRE_UNLOCK START_COMMIT
 
 =head1 INTRODUCTION
 
@@ -560,49 +568,17 @@ the hooks, you usually call C<run_hook> like this:
 
 =head1 AUTHOR
 
-Gustavo Chaves, C<< <gnustavo@cpan.org> >>
+Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-svn-hooks at
-rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=SVN-Hooks>.  I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
+This software is copyright (c) 2012 by CPqD.
 
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc SVN::Hooks
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=SVN-Hooks>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/SVN-Hooks>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/SVN-Hooks>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/SVN-Hooks>
-
-=back
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2008-2011 CPqD, all rights reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
+
+
+__END__
+

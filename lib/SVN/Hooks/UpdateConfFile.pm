@@ -1,7 +1,12 @@
-package SVN::Hooks::UpdateConfFile;
-
 use strict;
 use warnings;
+
+package SVN::Hooks::UpdateConfFile;
+{
+  $SVN::Hooks::UpdateConfFile::VERSION = '1.12';
+}
+# ABSTRACT: Maintain the repository configuration versioned.
+
 use Carp;
 use SVN::Hooks;
 use File::Spec::Functions;
@@ -12,140 +17,6 @@ use Exporter qw/import/;
 my $HOOK = 'UPDATE_CONF_FILE';
 our @EXPORT = ($HOOK);
 
-our $VERSION = $SVN::Hooks::VERSION;
-
-=head1 NAME
-
-SVN::Hooks::UpdateConfFile - Maintain the repository configuration versioned.
-
-=head1 SYNOPSIS
-
-This SVN::Hooks plugin allows you to maintain the repository
-configuration files under version control.
-
-The repository configuration is usually kept in the directory C<conf>
-under the directory where the repository was created. In a brand new
-repository you see there the files C<authz>, C<passwd>, and
-C<svnserve.conf>. It's too bad that these important files are usually
-kept out of any version control system. This plugin tries to solve
-this problem allowing you to keep these files versioned under the same
-repository where they are used.
-
-It's active in the C<pre-commit> and the C<post-commit> hooks.
-
-It's configured by the following directive.
-
-=head2 UPDATE_CONF_FILE(FROM, TO, @ARGS)
-
-This directive tells that after a successful commit the file FROM, kept
-under version control, must be copied to TO.
-
-FROM can be a string or a qr/Regexp/ specifying the file path relative
-to the repository's root (e.g. "trunk/src/version.c").
-
-TO is a path relative to the C</repo/conf> directory in the server. It
-can be an explicit file name or a directory, in which case the
-basename of FROM is used as the name of the destination file.
-
-If FROM is a qr/Regexp/ TO is evaluated as a string in order to allow
-for the interpolation of capture buffers from the regular
-expression. This is useful to map the copy operation to a diferent
-directory structure, for example.
-
-The optional @ARGS must be a sequence of pairs like these:
-
-=over
-
-=item validator => ARRAY or CODE
-
-A validator is a function or a command (specified by an array of
-strings that will be passed to the shell) that will check the contents
-of FROM in the pre-commit hook to see if it's valid. If there is no
-validator, the contents are considered valid.
-
-The function receives three arguments:
-
-=over
-
-=item A string with the contents of FROM
-
-=item A string with the relative path to FROM in the repository
-
-=item An SVN::Look object representing the commit transaction
-
-=back
-
-The command is called with three arguments:
-
-=over
-
-=item The path to a temporary copy of FROM
-
-=item The relative path to FROM in the repository
-
-=item The path to the root of the repository in the server
-
-=back
-
-=item generator => ARRAY or CODE
-
-A generator is a function or a command (specified by an array of
-strings that will be passed to the shell) that will transform the
-contents of FROM in the post-commit hook before copying it to TO. If
-there is no generator, the contents are copied as is.
-
-The function receives the same three arguments as the validator's
-function above.
-
-The command is called with the same three arguments as the validator's
-command above.
-
-=item actuator => ARRAY or CODE
-
-An actuator is a function or a command (specified by an array of
-strings that will be passed to the shell) that will be invoked after a
-successful commit of FROM in the post-commit hook.
-
-The function receives the same three arguments as the validator's
-function above.
-
-The command is called with the same three arguments as the validator's
-command above.
-
-=item rotate => NUMBER
-
-By default, after each successful commit the TO file is overwriten by
-the new contents of FROM. With this option, the last NUMBER versions
-of TO are kept on disk with numeric suffixes ranging from C<.0> to
-C<.NUMBER-1>. This can be useful, for instance, in case you manage to
-commit a wrong authz file that denies any subsequent commit.
-
-=back
-
-	UPDATE_CONF_FILE(
-	    'conf/authz' => 'authz',
-	    validator 	 => ['/usr/local/bin/svnauthcheck'],
-	    generator 	 => ['/usr/local/bin/authz-expand-includes'],
-            actuator     => ['/usr/local/bin/notify-auth-change'],
-	    rotate       => 2,
-	);
-
-	UPDATE_CONF_FILE(
-	    'conf/svn-hooks.conf' => 'svn-hooks.conf',
-	    validator 	 => [qw(/usr/bin/perl -c)],
-            actuator     => sub {
-                                my ($contents, $file) = @_;
-                                die "Can't use Gustavo here." if $contents =~ /gustavo/;
-                            },
-	    rotate       => 2,
-	);
-
-	UPDATE_CONF_FILE(
-	    qr:/file(\n+)$:' => 'subdir/$1/file',
-	    rotate       => 2,
-	);
-
-=cut
 
 my @Config;
 
@@ -366,54 +237,158 @@ sub _functor {
     };
 }
 
-=head1 AUTHOR
+1; # End of SVN::Hooks::UpdateConfFile
 
-Gustavo Chaves, C<< <gnustavo@cpan.org> >>
+__END__
+=pod
 
-=head1 BUGS
+=head1 NAME
 
-Please report any bugs or feature requests to
-C<bug-svn-hooks-updaterepofile at rt.cpan.org>, or through the web
-interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=SVN-Hooks>.  I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
+SVN::Hooks::UpdateConfFile - Maintain the repository configuration versioned.
 
-=head1 SUPPORT
+=head1 VERSION
 
-You can find documentation for this module with the perldoc command.
+version 1.12
 
-    perldoc SVN::Hooks
+=head1 SYNOPSIS
 
-You can also look for information at:
+This SVN::Hooks plugin allows you to maintain the repository
+configuration files under version control.
 
-=over 4
+The repository configuration is usually kept in the directory C<conf>
+under the directory where the repository was created. In a brand new
+repository you see there the files C<authz>, C<passwd>, and
+C<svnserve.conf>. It's too bad that these important files are usually
+kept out of any version control system. This plugin tries to solve
+this problem allowing you to keep these files versioned under the same
+repository where they are used.
 
-=item * RT: CPAN's request tracker
+It's active in the C<pre-commit> and the C<post-commit> hooks.
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=SVN-Hooks>
+It's configured by the following directive.
 
-=item * AnnoCPAN: Annotated CPAN documentation
+=head2 UPDATE_CONF_FILE(FROM, TO, @ARGS)
 
-L<http://annocpan.org/dist/SVN-Hooks>
+This directive tells that after a successful commit the file FROM, kept
+under version control, must be copied to TO.
 
-=item * CPAN Ratings
+FROM can be a string or a qr/Regexp/ specifying the file path relative
+to the repository's root (e.g. "trunk/src/version.c").
 
-L<http://cpanratings.perl.org/d/SVN-Hooks>
+TO is a path relative to the C</repo/conf> directory in the server. It
+can be an explicit file name or a directory, in which case the
+basename of FROM is used as the name of the destination file.
 
-=item * Search CPAN
+If FROM is a qr/Regexp/ TO is evaluated as a string in order to allow
+for the interpolation of capture buffers from the regular
+expression. This is useful to map the copy operation to a diferent
+directory structure, for example.
 
-L<http://search.cpan.org/dist/SVN-Hooks>
+The optional @ARGS must be a sequence of pairs like these:
+
+=over
+
+=item validator => ARRAY or CODE
+
+A validator is a function or a command (specified by an array of
+strings that will be passed to the shell) that will check the contents
+of FROM in the pre-commit hook to see if it's valid. If there is no
+validator, the contents are considered valid.
+
+The function receives three arguments:
+
+=over
+
+=item A string with the contents of FROM
+
+=item A string with the relative path to FROM in the repository
+
+=item An SVN::Look object representing the commit transaction
 
 =back
 
-=head1 COPYRIGHT & LICENSE
+The command is called with three arguments:
 
-Copyright 2008-2011 CPqD, all rights reserved.
+=over
 
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+=item The path to a temporary copy of FROM
+
+=item The relative path to FROM in the repository
+
+=item The path to the root of the repository in the server
+
+=back
+
+=item generator => ARRAY or CODE
+
+A generator is a function or a command (specified by an array of
+strings that will be passed to the shell) that will transform the
+contents of FROM in the post-commit hook before copying it to TO. If
+there is no generator, the contents are copied as is.
+
+The function receives the same three arguments as the validator's
+function above.
+
+The command is called with the same three arguments as the validator's
+command above.
+
+=item actuator => ARRAY or CODE
+
+An actuator is a function or a command (specified by an array of
+strings that will be passed to the shell) that will be invoked after a
+successful commit of FROM in the post-commit hook.
+
+The function receives the same three arguments as the validator's
+function above.
+
+The command is called with the same three arguments as the validator's
+command above.
+
+=item rotate => NUMBER
+
+By default, after each successful commit the TO file is overwriten by
+the new contents of FROM. With this option, the last NUMBER versions
+of TO are kept on disk with numeric suffixes ranging from C<.0> to
+C<.NUMBER-1>. This can be useful, for instance, in case you manage to
+commit a wrong authz file that denies any subsequent commit.
+
+=back
+
+	UPDATE_CONF_FILE(
+	    'conf/authz' => 'authz',
+	    validator 	 => ['/usr/local/bin/svnauthcheck'],
+	    generator 	 => ['/usr/local/bin/authz-expand-includes'],
+            actuator     => ['/usr/local/bin/notify-auth-change'],
+	    rotate       => 2,
+	);
+
+	UPDATE_CONF_FILE(
+	    'conf/svn-hooks.conf' => 'svn-hooks.conf',
+	    validator 	 => [qw(/usr/bin/perl -c)],
+            actuator     => sub {
+                                my ($contents, $file) = @_;
+                                die "Can't use Gustavo here." if $contents =~ /gustavo/;
+                            },
+	    rotate       => 2,
+	);
+
+	UPDATE_CONF_FILE(
+	    qr:/file(\n+)$:' => 'subdir/$1/file',
+	    rotate       => 2,
+	);
+
+=for Pod::Coverage post_commit pre_commit
+
+=head1 AUTHOR
+
+Gustavo L. de M. Chaves <gnustavo@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2012 by CPqD.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1; # End of SVN::Hooks::UpdateConfFile

@@ -1,7 +1,12 @@
-package SVN::Hooks::Generic;
-
 use strict;
 use warnings;
+
+package SVN::Hooks::Generic;
+{
+  $SVN::Hooks::Generic::VERSION = '1.12';
+}
+# ABSTRACT: Implement generic checks for all Subversion hooks.
+
 use Carp;
 use SVN::Hooks;
 
@@ -9,11 +14,47 @@ use Exporter qw/import/;
 my $HOOK = 'GENERIC';
 our @EXPORT = ($HOOK);
 
-our $VERSION = $SVN::Hooks::VERSION;
+
+sub GENERIC {
+    my (@args) = @_;
+
+    (@args % 2) == 0
+	or croak "$HOOK: odd number of arguments.\n";
+
+    my %args = @args;
+
+    while (my ($hook, $functions) = each %args) {
+	$hook =~ /(?:(?:pre|post)-(?:commit|lock|revprop-change|unlock)|start-commit)/
+	    or die "$HOOK: invalid hook name ($hook)";
+	if (! ref $functions) {
+	    die "$HOOK: hook '$hook' should be mapped to a reference.\n";
+	} elsif (ref $functions eq 'CODE') {
+	    $functions = [$functions];
+	} elsif (ref $functions ne 'ARRAY') {
+	    die "$HOOK: hook '$hook' should be mapped to a CODE-ref or to an ARRAY of CODE-refs.\n";
+	}
+	foreach my $foo (@$functions) {
+	    ref $foo and ref $foo eq 'CODE'
+		or die "$HOOK: hook '$hook' should be mapped to CODE-refs.\n";
+	    $SVN::Hooks::Hooks{$hook}{$foo} ||= sub { $foo->(@_); };
+	}
+    }
+
+    return 1;
+}
+
+1; # End of SVN::Hooks::Generic
+
+__END__
+=pod
 
 =head1 NAME
 
 SVN::Hooks::Generic - Implement generic checks for all Subversion hooks.
+
+=head1 VERSION
+
+version 1.12
 
 =head1 SYNOPSIS
 
@@ -84,84 +125,16 @@ The sketch below shows how this directive could be used.
 	    'pre-commit'   => \&my_pre_commit,
 	);
 
-=cut
-
-sub GENERIC {
-    my (@args) = @_;
-
-    (@args % 2) == 0
-	or croak "$HOOK: odd number of arguments.\n";
-
-    my %args = @args;
-
-    while (my ($hook, $functions) = each %args) {
-	$hook =~ /(?:(?:pre|post)-(?:commit|lock|revprop-change|unlock)|start-commit)/
-	    or die "$HOOK: invalid hook name ($hook)";
-	if (! ref $functions) {
-	    die "$HOOK: hook '$hook' should be mapped to a reference.\n";
-	} elsif (ref $functions eq 'CODE') {
-	    $functions = [$functions];
-	} elsif (ref $functions ne 'ARRAY') {
-	    die "$HOOK: hook '$hook' should be mapped to a CODE-ref or to an ARRAY of CODE-refs.\n";
-	}
-	foreach my $foo (@$functions) {
-	    ref $foo and ref $foo eq 'CODE'
-		or die "$HOOK: hook '$hook' should be mapped to CODE-refs.\n";
-	    $SVN::Hooks::Hooks{$hook}{$foo} ||= sub { $foo->(@_); };
-	}
-    }
-
-    return 1;
-}
-
 =head1 AUTHOR
 
-Gustavo Chaves, C<< <gnustavo@cpan.org> >>
+Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to
-C<bug-svn-hooks-updaterepofile at rt.cpan.org>, or through the web
-interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=SVN-Hooks>.  I will
-be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
+This software is copyright (c) 2012 by CPqD.
 
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc SVN::Hooks
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=SVN-Hooks>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/SVN-Hooks>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/SVN-Hooks>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/SVN-Hooks>
-
-=back
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2008-2011 CPqD, all rights reserved.
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1; # End of SVN::Hooks::Generic
