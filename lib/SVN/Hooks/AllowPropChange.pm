@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::AllowPropChange;
 {
-  $SVN::Hooks::AllowPropChange::VERSION = '1.12';
+  $SVN::Hooks::AllowPropChange::VERSION = '1.13';
 }
 # ABSTRACT: Allow changes in revision properties.
 
@@ -83,7 +83,7 @@ SVN::Hooks::AllowPropChange - Allow changes in revision properties.
 
 =head1 VERSION
 
-version 1.12
+version 1.13
 
 =head1 SYNOPSIS
 
