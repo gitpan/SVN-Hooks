@@ -233,7 +233,7 @@ SVN::Hooks::CheckJira - Integrate Subversion with the JIRA ticketing system.
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 DESCRIPTION
 

@@ -9,6 +9,7 @@ dist.ini
 examples/README.txt
 examples/check-filesize-limit.pl
 examples/check-java-style.pl
+examples/check-mergeinfo.pl
 examples/check-perl-critic.pl
 examples/check-valid-utf8.pl
 lib/SVN/Hooks.pm

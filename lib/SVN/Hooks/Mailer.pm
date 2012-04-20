@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::Mailer;
 {
-  $SVN::Hooks::Mailer::VERSION = '1.13';
+  $SVN::Hooks::Mailer::VERSION = '1.14';
 }
 # ABSTRACT: Send emails after successful commits.
 
@@ -47,7 +47,7 @@ SVN::Hooks::Mailer - Send emails after successful commits.
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 SYNOPSIS
 
