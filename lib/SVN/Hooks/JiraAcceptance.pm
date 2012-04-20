@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::JiraAcceptance;
 {
-  $SVN::Hooks::JiraAcceptance::VERSION = '1.14';
+  $SVN::Hooks::JiraAcceptance::VERSION = '1.15';
 }
 # ABSTRACT: Integrate Subversion with the JIRA ticketing system.
 
@@ -151,7 +151,7 @@ SVN::Hooks::JiraAcceptance - Integrate Subversion with the JIRA ticketing system
 
 =head1 VERSION
 
-version 1.14
+version 1.15
 
 =head1 SYNOPSIS
 

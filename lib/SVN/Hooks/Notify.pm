@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::Notify;
 {
-  $SVN::Hooks::Notify::VERSION = '1.14';
+  $SVN::Hooks::Notify::VERSION = '1.15';
 }
 # ABSTRACT: Subversion activity notification.
 
@@ -60,7 +60,7 @@ SVN::Hooks::Notify - Subversion activity notification.
 
 =head1 VERSION
 
-version 1.14
+version 1.15
 
 =head1 SYNOPSIS
 

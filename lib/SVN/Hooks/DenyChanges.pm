@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::DenyChanges;
 {
-  $SVN::Hooks::DenyChanges::VERSION = '1.14';
+  $SVN::Hooks::DenyChanges::VERSION = '1.15';
 }
 # ABSTRACT: Deny some changes in a repository.
 
@@ -115,7 +115,7 @@ SVN::Hooks::DenyChanges - Deny some changes in a repository.
 
 =head1 VERSION
 
-version 1.14
+version 1.15
 
 =head1 SYNOPSIS
 
