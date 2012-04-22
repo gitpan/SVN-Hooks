@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::Generic;
 {
-  $SVN::Hooks::Generic::VERSION = '1.15';
+  $SVN::Hooks::Generic::VERSION = '1.16';
 }
 # ABSTRACT: Implement generic checks for all Subversion hooks.
 
@@ -54,7 +54,7 @@ SVN::Hooks::Generic - Implement generic checks for all Subversion hooks.
 
 =head1 VERSION
 
-version 1.15
+version 1.16
 
 =head1 SYNOPSIS
 

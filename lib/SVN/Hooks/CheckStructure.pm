@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckStructure;
 {
-  $SVN::Hooks::CheckStructure::VERSION = '1.15';
+  $SVN::Hooks::CheckStructure::VERSION = '1.16';
 }
 # ABSTRACT: Check the structure of a repository.
 
@@ -135,7 +135,7 @@ SVN::Hooks::CheckStructure - Check the structure of a repository.
 
 =head1 VERSION
 
-version 1.15
+version 1.16
 
 =head1 SYNOPSIS
 

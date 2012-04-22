@@ -1,13 +1,8 @@
+SVN::Hooks - A framework for implementing Subversion hooks.
 
-
-This archive contains the distribution SVN-Hooks,
-version 1.15:
-
-  A framework for implementing Subversion hooks.
-
-This software is copyright (c) 2012 by CPqD.
+Copyright (c) 2012 by CPqD (http://www.cpqd.com.br/)
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
-
+Home page: http://search.cpan.org/dist/SVN-Hooks/
