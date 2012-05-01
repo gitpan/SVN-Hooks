@@ -3,11 +3,12 @@ use warnings;
 
 package SVN::Hooks::JiraAcceptance;
 {
-  $SVN::Hooks::JiraAcceptance::VERSION = '1.16';
+  $SVN::Hooks::JiraAcceptance::VERSION = '1.17';
 }
 # ABSTRACT: Integrate Subversion with the JIRA ticketing system.
 
 use Carp;
+use Data::Util qw(:check);
 use SVN::Hooks;
 use XMLRPC::Lite;
 
@@ -33,10 +34,8 @@ my ($Match, $Help);
 
 sub JIRA_LOG_MATCH {
     my ($regex, $message) = @_;
-    ref $regex eq 'Regexp'
-	or croak "JIRA_LOG_MATCH: first arg must be a qr/Regexp/.\n";
-    not defined $message or not ref $message
-	or croak "JIRA_LOG_MATCH: second arg must be a string.\n";
+    is_rx($regex)       or croak "JIRA_LOG_MATCH: first arg must be a qr/Regexp/.\n";
+    is_string($message) or croak "JIRA_LOG_MATCH: second arg must be a string.\n";
 
     $Match = $regex;
     if ($message) {
@@ -55,10 +54,8 @@ my @Checks;
 
 sub JIRA_ACCEPTANCE {
     my ($regex, $project_keys) = @_;
-    ref $regex eq 'Regexp'
-	or croak "JIRA_ACCEPTANCE: first arg must be a qr/Regexp/.\n";
-    not defined $project_keys or not ref $project_keys
-	or croak "JIRA_ACCEPTANCE: second arg must be a string.\n";
+    is_rx($regex)	     or croak "JIRA_ACCEPTANCE: first arg must be a qr/Regexp/.\n";
+    is_string($project_keys) or croak "JIRA_ACCEPTANCE: second arg must be a string.\n";
 
     my %keys;
     foreach (split /,/, $project_keys) {
@@ -98,8 +95,7 @@ sub pre_commit {
 	if (defined $Match) {
 	    if ($jira_refs =~ $Match) {
 		$jira_refs = $1;
-	    }
-	    else {
+	    } else {
 		chomp $jira_refs;
 		croak <<"EOS";
 JIRA_ACCEPTANCE: Could not extract JIRA references from the log message.
@@ -151,7 +147,7 @@ SVN::Hooks::JiraAcceptance - Integrate Subversion with the JIRA ticketing system
 
 =head1 VERSION
 
-version 1.16
+version 1.17
 
 =head1 SYNOPSIS
 

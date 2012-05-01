@@ -3,11 +3,12 @@ use warnings;
 
 package SVN::Hooks::CheckLog;
 {
-  $SVN::Hooks::CheckLog::VERSION = '1.16';
+  $SVN::Hooks::CheckLog::VERSION = '1.17';
 }
 # ABSTRACT: Check log messages in commits.
 
 use Carp;
+use Data::Util qw(:check);
 use SVN::Hooks;
 
 use Exporter qw/import/;
@@ -20,9 +21,8 @@ my @checks;
 sub CHECK_LOG {
     my ($regexp, $error_message) = @_;
 
-    defined $regexp and ref $regexp eq 'Regexp'
-	or croak "$HOOK: first argument must be a qr/Regexp/\n";
-    not defined $error_message or not ref $error_message
+    is_rx($regexp) or croak "$HOOK: first argument must be a qr/Regexp/\n";
+    ! defined $error_message || is_string($error_message)
 	or croak "$HOOK: second argument must be undefined, or a STRING\n";
 
     push @checks, {
@@ -59,7 +59,7 @@ SVN::Hooks::CheckLog - Check log messages in commits.
 
 =head1 VERSION
 
-version 1.16
+version 1.17
 
 =head1 SYNOPSIS
 

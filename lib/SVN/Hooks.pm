@@ -3,12 +3,13 @@ use strict;
 
 package SVN::Hooks;
 {
-  $SVN::Hooks::VERSION = '1.16';
+  $SVN::Hooks::VERSION = '1.17';
 }
 # ABSTRACT: A framework for implementing Subversion hooks.
 
 use File::Basename;
 use File::Spec::Functions;
+use Data::Util qw(:check);
 use SVN::Look;
 
 use Exporter qw/import/;
@@ -36,7 +37,7 @@ sub run_hook {
 	next unless -e $conffile; # Configuration files are optional
 	package main;
 {
-  $main::VERSION = '1.16';
+  $main::VERSION = '1.17';
 }
 	unless (my $return = do $conffile) {
 	    die "couldn't parse '$conffile': $@\n" if $@;
@@ -50,16 +51,15 @@ sub run_hook {
     if ($hook_name eq 'pre-commit') {
 	# The next arg is a transaction number
 	$repo_path = SVN::Look->new($repo_path, '-t' => $args[0]);
-    }
-    elsif ($hook_name =~ /^(?:post-commit|(?:pre|post)-revprop-change)$/) {
+    } elsif ($hook_name =~ /^(?:post-commit|(?:pre|post)-revprop-change)$/) {
 	# The next arg is a revision number
 	$repo_path = SVN::Look->new($repo_path, '-r' => $args[0]);
     }
 
     foreach my $hook (values %{$Hooks{$hook_name}}) {
-	if (ref $hook eq 'CODE') {
+	if (is_code_ref($hook)) {
 	    $hook->($repo_path, @args);
-	} elsif (ref $hook eq 'ARRAY') {
+	} elsif (is_array_ref($hook)) {
 	    foreach my $h (@$hook) {
 		$h->($repo_path, @args);
 	    }
@@ -145,7 +145,7 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-version 1.16
+version 1.17
 
 =head1 SYNOPSIS
 

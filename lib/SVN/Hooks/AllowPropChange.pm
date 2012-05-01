@@ -3,11 +3,12 @@ use warnings;
 
 package SVN::Hooks::AllowPropChange;
 {
-  $SVN::Hooks::AllowPropChange::VERSION = '1.16';
+  $SVN::Hooks::AllowPropChange::VERSION = '1.17';
 }
 # ABSTRACT: Allow changes in revision properties.
 
 use Carp;
+use Data::Util qw(:check);
 use SVN::Hooks;
 
 use Exporter qw/import/;
@@ -23,10 +24,9 @@ sub ALLOW_PROP_CHANGE {
     my @whos;
 
     foreach my $arg (@args) {
-	if (not ref $arg or ref $arg eq 'Regexp') {
+	if (is_string($arg) || is_rx($arg)) {
 	    push @whos, $arg;
-	}
-	else {
+	} else {
 	    croak "$HOOK: invalid argument '$arg'\n";
 	}
     }
@@ -53,17 +53,15 @@ sub pre_revprop_change {
 
     foreach my $spec (@Specs) {
 	my ($prop, $whos) = @$spec;
-	if (! ref $prop) {
+	if (is_string($prop)) {
 	    next if $propname ne $prop;
-	}
-	else {
+	} else {
 	    next if $propname !~ $prop;
 	}
 	for my $who (@$whos) {
-	    if (! ref $who) {
+	    if (is_string($who)) {
 		return if $author eq $who;
-	    }
-	    else {
+	    } else {
 		return if $author =~ $who;
 	    }
 	}
@@ -83,7 +81,7 @@ SVN::Hooks::AllowPropChange - Allow changes in revision properties.
 
 =head1 VERSION
 
-version 1.16
+version 1.17
 
 =head1 SYNOPSIS
 

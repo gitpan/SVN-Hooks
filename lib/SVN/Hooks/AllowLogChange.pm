@@ -3,11 +3,12 @@ use warnings;
 
 package SVN::Hooks::AllowLogChange;
 {
-  $SVN::Hooks::AllowLogChange::VERSION = '1.16';
+  $SVN::Hooks::AllowLogChange::VERSION = '1.17';
 }
 # ABSTRACT: Allow changes in revision log messages.
 
 use Carp;
+use Data::Util qw(:check);
 use SVN::Hooks;
 
 use Exporter qw/import/;
@@ -21,10 +22,9 @@ sub ALLOW_LOG_CHANGE {
     my @args = @_;
 
     foreach my $who (@args) {
-	if (not ref $who or ref $who eq 'Regexp') {
+	if (is_string($who) || is_rx($who)) {
 	    push @Valid_Users, $who;
-	}
-	else {
+	} else {
 	    croak "$HOOK: invalid argument '$who'\n";
 	}
     }
@@ -47,7 +47,7 @@ sub pre_revprop_change {
     return unless @Valid_Users;
 
     for my $user (@Valid_Users) {
-	return if not ref $user and $author eq $user or $author =~ $user;
+	return if is_string($user) && $author eq $user || $author =~ $user;
     }
 
     croak "$HOOK: you are not allowed to change a revision log.\n";
@@ -64,7 +64,7 @@ SVN::Hooks::AllowLogChange - Allow changes in revision log messages.
 
 =head1 VERSION
 
-version 1.16
+version 1.17
 
 =head1 SYNOPSIS
 

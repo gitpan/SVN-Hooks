@@ -3,15 +3,16 @@ use warnings;
 
 package SVN::Hooks::UpdateConfFile;
 {
-  $SVN::Hooks::UpdateConfFile::VERSION = '1.16';
+  $SVN::Hooks::UpdateConfFile::VERSION = '1.17';
 }
 # ABSTRACT: Maintain the repository configuration versioned.
 
 use Carp;
-use SVN::Hooks;
+use Data::Util qw(:check);
 use File::Spec::Functions;
 use File::Temp qw/tempdir/;
 use Cwd qw/abs_path/;
+use SVN::Hooks;
 
 use Exporter qw/import/;
 my $HOOK = 'UPDATE_CONF_FILE';
@@ -23,17 +24,10 @@ my @Config;
 sub UPDATE_CONF_FILE {
     my ($from, $to, @args) = @_;
 
-    defined $from and (not ref $from or ref $from eq 'Regexp')
-	or croak "$HOOK: invalid first argument.\n";
-
-    defined $to and not ref $to
-	or croak "$HOOK: invalid second argument.\n";
-
-    (@args % 2) == 0
-	or croak "$HOOK: odd number of arguments.\n";
-
-    file_name_is_absolute($to)
-	and croak "$HOOK: second argument cannot be an absolute pathname ($to).\n";
+    is_string($from) || is_rx($from) or croak "$HOOK: invalid first argument.\n";
+    is_string($to)                   or croak "$HOOK: invalid second argument.\n";
+    (@args % 2) == 0                 or croak "$HOOK: odd number of arguments.\n";
+    file_name_is_absolute($to)      and croak "$HOOK: second argument cannot be an absolute pathname ($to).\n";
 
     my %confs = (from => $from, to => $to);
 
@@ -41,18 +35,14 @@ sub UPDATE_CONF_FILE {
 
     for my $function (qw/validator generator actuator/) {
 	if (my $what = delete $args{$function}) {
-	    if (ref $what eq 'CODE') {
+	    if (is_code_ref($what)) {
 		$confs{$function} = $what;
-	    }
-	    elsif (ref $what eq 'ARRAY') {
+	    } elsif (is_array_ref($what)) {
 		# This should point to list of command arguments
-		@$what > 0
-		    or croak "$HOOK: $function argument must have at least one element.\n";
-		-x $what->[0]
-		    or croak "$HOOK: $function argument is not a valid command ($what->[0]).\n";
+		@$what > 0    or croak "$HOOK: $function argument must have at least one element.\n";
+		-x $what->[0] or croak "$HOOK: $function argument is not a valid command ($what->[0]).\n";
 		$confs{$function} = _functor($what);
-	    }
-	    else {
+	    } else {
 		croak "$HOOK: $function argument must be a CODE-ref or an ARRAY-ref.\n";
 	    }
 
@@ -61,10 +51,8 @@ sub UPDATE_CONF_FILE {
     }
 
     if (my $rotate = delete $args{rotate}) {
-	$rotate =~ /^\d+$/
-	    or croak "$HOOK: rotate argument must be numeric, not '$rotate'";
-	$rotate < 10
-	    or croak "$HOOK: rotate argument must be less than 10, not '$rotate'";
+	$rotate =~ /^\d+$/ or croak "$HOOK: rotate argument must be numeric, not '$rotate'";
+	$rotate < 10       or croak "$HOOK: rotate argument must be less than 10, not '$rotate'";
 	$confs{rotate} = $rotate;
     }
 
@@ -86,10 +74,9 @@ sub pre_commit {
 	if (my $validator = $conf->{validator}) {
 	    my $from = $conf->{from};
 	    for my $file ($svnlook->added(), $svnlook->updated()) {
-		if (! ref $from) {
+		if (is_string($from)) {
 		    next if $file ne $from;
-		}
-		else {
+		} else {
 		    next if $file !~ $from;
 		}
 
@@ -122,10 +109,9 @@ sub post_commit {
 	my $from = $conf->{from};
 	for my $file ($svnlook->added(), $svnlook->updated()) {
 	    my $to = $conf->{to};
-	    if (! ref $from) {
+	    if (is_string($from)) {
 		next if $file ne $from;
-	    }
-	    else {
+	    } else {
 		next if $file !~ $from;
 		# interpolate backreferences 
 		$to = eval qq{"$to"}; ## no critic
@@ -230,8 +216,7 @@ sub _functor {
 	local $ENV{SVNREPOPATH} = $svnlook->repo();
 	if (system("$cmd $temp/file $path $ENV{SVNREPOPATH} 1>$temp/output 2>$temp/error") == 0) {
 	    return `cat $temp/output`;
-	}
-	else {
+	} else {
 	    croak `cat $temp/error`;
 	}
     };
@@ -248,7 +233,7 @@ SVN::Hooks::UpdateConfFile - Maintain the repository configuration versioned.
 
 =head1 VERSION
 
-version 1.16
+version 1.17
 
 =head1 SYNOPSIS
 

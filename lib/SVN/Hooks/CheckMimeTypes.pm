@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckMimeTypes;
 {
-  $SVN::Hooks::CheckMimeTypes::VERSION = '1.16';
+  $SVN::Hooks::CheckMimeTypes::VERSION = '1.17';
 }
 # ABSTRACT: Require the svn:mime-type property.
 
@@ -41,8 +41,7 @@ sub pre_commit {
 	my $props = $svnlook->proplist($added);
 	unless (my $mimetype = $props->{'svn:mime-type'}) {
 	    push @errors, "property svn:mime-type is not set for: $added";
-	}
-	elsif ($mimetype =~ m:^text/:) {
+	} elsif ($mimetype =~ m:^text/:) {
 	    for my $prop ('svn:eol-style', 'svn:keywords') {
 		push @errors, "property $prop is not set for text file: $added"
 		    unless exists $props->{$prop};
@@ -80,7 +79,7 @@ SVN::Hooks::CheckMimeTypes - Require the svn:mime-type property.
 
 =head1 VERSION
 
-version 1.16
+version 1.17
 
 =head1 SYNOPSIS
 

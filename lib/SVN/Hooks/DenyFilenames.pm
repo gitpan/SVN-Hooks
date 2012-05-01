@@ -3,11 +3,12 @@ use warnings;
 
 package SVN::Hooks::DenyFilenames;
 {
-  $SVN::Hooks::DenyFilenames::VERSION = '1.16';
+  $SVN::Hooks::DenyFilenames::VERSION = '1.17';
 }
 # ABSTRACT: Deny some file names.
 
 use Carp;
+use Data::Util qw(:check);
 use SVN::Hooks;
 
 use Exporter qw/import/;
@@ -17,15 +18,12 @@ our @EXPORT = ($HOOK, 'DENY_FILENAMES_PER_PATH');
 
 sub _grok_check {
     my ($directive, $check) = @_;
-    if (ref $check eq 'Regexp') {
+    if (is_rx($check)) {
 	return [$check => 'filename not allowed'];
-    } elsif (ref $check eq 'ARRAY') {
-	@$check == 2
-	    or croak "$directive: array arguments must have two arguments.\n";
-	ref $check->[0] eq 'Regexp'
-	    or croak "$directive: got \"$check->[0]\" while expecting a qr/Regex/.\n";
-	! ref $check->[1]
-	    or croak "$directive: got \"$check->[1]\" while expecting a string.\n";
+    } elsif (is_array_ref($check)) {
+	@$check == 2           or croak "$directive: array arguments must have two arguments.\n";
+	is_rx($check->[0])     or croak "$directive: got \"$check->[0]\" while expecting a qr/Regex/.\n";
+	is_string($check->[1]) or croak "$directive: got \"$check->[1]\" while expecting a string.\n";
 	return $check;
     } else {
 	croak "$directive: got \"$check\" while expecting a qr/Regex/ or a [qr/Regex/, 'message'].\n";
@@ -56,8 +54,7 @@ sub DENY_FILENAMES_PER_PATH {
 
     while (@rules) {
 	my ($match, $check) = splice @rules, 0, 2;
-	ref $match && ref $match eq 'Regexp'
-	    or croak "DENY_FILENAMES_PER_PATH: rule prefix isn't a Regexp.\n";
+	is_rx($match) or croak "DENY_FILENAMES_PER_PATH: rule prefix isn't a Regexp.\n";
 
 	push @Per_path_checks, [$match => _grok_check('DENY_FILENAMES_PER_PATH', $check)];
     }
@@ -101,7 +98,7 @@ SVN::Hooks::DenyFilenames - Deny some file names.
 
 =head1 VERSION
 
-version 1.16
+version 1.17
 
 =head1 SYNOPSIS
 

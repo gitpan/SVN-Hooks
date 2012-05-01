@@ -21,6 +21,7 @@ name: SVN-Hooks
 requires:
   Carp: 0
   Cwd: 0
+  Data::Util: 0
   Exporter: 0
   File::Basename: 0
   File::Spec::Functions: 0
@@ -33,5 +34,6 @@ requires:
   warnings: 0
 resources:
   bugtracker: https://github.com/gnustavo/SVN-Hooks/issues
+  homepage: http://search.cpan.org/dist/SVN-Hooks/
   repository: git://github.com/gnustavo/SVN-Hooks.git
-version: 1.16
+version: 1.17
