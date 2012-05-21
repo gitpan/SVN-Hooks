@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckCapability;
 {
-  $SVN::Hooks::CheckCapability::VERSION = '1.17';
+  $SVN::Hooks::CheckCapability::VERSION = '1.18';
 }
 # ABSTRACT: Check the svn client capabilities.
 
@@ -55,7 +55,7 @@ SVN::Hooks::CheckCapability - Check the svn client capabilities.
 
 =head1 VERSION
 
-version 1.17
+version 1.18
 
 =head1 SYNOPSIS
 
