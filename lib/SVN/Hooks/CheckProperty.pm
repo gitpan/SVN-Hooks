@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckProperty;
 {
-  $SVN::Hooks::CheckProperty::VERSION = '1.18';
+  $SVN::Hooks::CheckProperty::VERSION = '1.19';
 }
 # ABSTRACT: Check properties in added files.
 
@@ -87,7 +87,7 @@ SVN::Hooks::CheckProperty - Check properties in added files.
 
 =head1 VERSION
 
-version 1.18
+version 1.19
 
 =head1 SYNOPSIS
 

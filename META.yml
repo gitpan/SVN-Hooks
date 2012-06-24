@@ -36,4 +36,4 @@ resources:
   bugtracker: https://github.com/gnustavo/SVN-Hooks/issues
   homepage: http://search.cpan.org/dist/SVN-Hooks/
   repository: git://github.com/gnustavo/SVN-Hooks.git
-version: 1.18
+version: 1.19

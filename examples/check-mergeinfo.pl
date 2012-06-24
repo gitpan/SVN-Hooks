@@ -9,7 +9,7 @@
 # of allowed regexes.
 
 my @allowed_merge_roots = (
-    qr@^(?:trunk|branches/[^/]+)/$@, # only on trunk and on branches roots
+    qr@^(?:trunk|branches/[^/]+)/$@, # only on trunk and on branch roots
 );
 
 # This hook loops over every path which had the svn:mergeinfo property
@@ -23,7 +23,7 @@ PRE_COMMIT {
     my $headlook;		# initialized inside the loop if needed
 
     foreach my $path (sort $svnlook->prop_modified()) {
-	next unless exists $svnlook->proplist($_)->{'svn:mergeinfo'};
+	next unless exists $svnlook->proplist($path)->{'svn:mergeinfo'};
 
 	# Get a SVN::Look to the HEAD revision in order to see what
 	# has changed in this commit transaction
@@ -52,6 +52,7 @@ PRE_COMMIT {
 	    die "Merge not allowed on '$path'\n";
 	}
     }
+    return;
 };
 
 1;

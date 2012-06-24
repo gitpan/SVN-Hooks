@@ -2,6 +2,9 @@ use strict;
 use warnings;
 
 package SVN::Hooks::CheckJira;
+{
+  $SVN::Hooks::CheckJira::VERSION = '1.19';
+}
 # ABSTRACT: Integrate Subversion with the JIRA ticketing system.
 
 use Carp;
@@ -12,8 +15,6 @@ use JIRA::Client;
 use Exporter qw/import/;
 my $HOOK = 'CHECK_JIRA';
 our @EXPORT = qw/CHECK_JIRA_CONFIG CHECK_JIRA/;
-
-our $VERSION = $SVN::Hooks::VERSION;
 
 
 my ($BaseURL, $Login, $Passwd, $MatchLog, $MatchKey);
@@ -238,7 +239,7 @@ SVN::Hooks::CheckJira - Integrate Subversion with the JIRA ticketing system.
 
 =head1 VERSION
 
-version 1.18
+version 1.19
 
 =head1 DESCRIPTION
 

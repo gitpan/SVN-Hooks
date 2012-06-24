@@ -3,7 +3,7 @@ use strict;
 
 package SVN::Hooks;
 {
-  $SVN::Hooks::VERSION = '1.18';
+  $SVN::Hooks::VERSION = '1.19';
 }
 # ABSTRACT: A framework for implementing Subversion hooks.
 
@@ -37,7 +37,7 @@ sub run_hook {
 	next unless -e $conffile; # Configuration files are optional
 	package main;
 {
-  $main::VERSION = '1.18';
+  $main::VERSION = '1.19';
 }
 	unless (my $return = do $conffile) {
 	    die "couldn't parse '$conffile': $@\n" if $@;
@@ -145,7 +145,7 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-version 1.18
+version 1.19
 
 =head1 SYNOPSIS
 
