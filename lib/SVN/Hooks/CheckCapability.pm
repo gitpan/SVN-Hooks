@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckCapability;
 {
-  $SVN::Hooks::CheckCapability::VERSION = '1.19';
+  $SVN::Hooks::CheckCapability::VERSION = '1.20';
 }
 # ABSTRACT: Check the svn client capabilities.
 
@@ -47,6 +47,7 @@ sub start_commit {
 1; # End of SVN::Hooks::CheckCapability
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -55,7 +56,7 @@ SVN::Hooks::CheckCapability - Check the svn client capabilities.
 
 =head1 VERSION
 
-version 1.19
+version 1.20
 
 =head1 SYNOPSIS
 
@@ -87,10 +88,9 @@ Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by CPqD.
+This software is copyright (c) 2013 by CPqD.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

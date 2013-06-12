@@ -13,7 +13,6 @@ my %WriteMakefileArgs = (
   "AUTHOR" => "Gustavo L. de M. Chaves <gnustavo\@cpan.org>",
   "BUILD_REQUIRES" => {
     "Config" => 0,
-    "English" => 0,
     "File::Copy" => 0,
     "File::Path" => 0,
     "Test::More" => 0,
@@ -41,7 +40,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "1.19",
+  "VERSION" => "1.20",
   "test" => {
     "TESTS" => "t/*.t"
   }

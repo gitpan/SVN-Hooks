@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckStructure;
 {
-  $SVN::Hooks::CheckStructure::VERSION = '1.19';
+  $SVN::Hooks::CheckStructure::VERSION = '1.20';
 }
 # ABSTRACT: Check the structure of a repository.
 
@@ -58,7 +58,7 @@ sub _check_structure {
 	    if (is_string($lhs)) {
 		if ($lhs eq $path->[0]) {
 		    return _check_structure($rhs, $path);
-		} elsif ($lhs =~ /^\d+$/) {
+		} elsif (is_integer($lhs)) {
 		    if ($lhs) {
 			return _check_structure($rhs, $path);
 		    } elsif (is_string($rhs)) {
@@ -118,6 +118,7 @@ sub pre_commit {
 1; # End of SVN::Hooks::CheckStructure
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -126,7 +127,7 @@ SVN::Hooks::CheckStructure - Check the structure of a repository.
 
 =head1 VERSION
 
-version 1.19
+version 1.20
 
 =head1 SYNOPSIS
 
@@ -170,13 +171,13 @@ A regexp specifies the class of names that match it.
 
 =item NUMBER
 
-A number may be used as an else-clause. A positive number means that
+A number may be used as an else-clause. A non-zero number means that
 any name not yet matched by the previous pair must conform to the
 associated STRUCT_DEF.
 
-A negative number means that no name will do and signals an error. In
-this case, if the STRUCT_DEF is a string it is used as a help message
-shown to the user.
+A zero means that no name will do and signals an error. In this case,
+if the STRUCT_DEF is a string it is used as a help message shown to
+the user.
 
 =back
 
@@ -190,11 +191,11 @@ component must be.
 
 =item NUMBER
 
-A positive number simply tells that whatever the current component is
+A non-zero number simply tells that whatever the current component is
 is ok and finishes the check successfully.
 
-A negative number tells that whatever the current component is is a
-structure violation and aborts the commit.
+A zero tells that whatever the current component is is a structure
+violation and aborts the commit.
 
 =back
 
@@ -271,10 +272,9 @@ Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by CPqD.
+This software is copyright (c) 2013 by CPqD.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

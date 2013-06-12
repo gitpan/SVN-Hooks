@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::UpdateConfFile;
 {
-  $SVN::Hooks::UpdateConfFile::VERSION = '1.19';
+  $SVN::Hooks::UpdateConfFile::VERSION = '1.20';
 }
 # ABSTRACT: Maintain the repository configuration versioned.
 
@@ -104,7 +104,6 @@ sub post_commit {
 
     my $absbase = abs_path(catdir($SVN::Hooks::Repo, 'conf'));
 
-  CONF:
     foreach my $conf (@Config) {
 	my $from = $conf->{from};
 	for my $file ($svnlook->added(), $svnlook->updated()) {
@@ -191,8 +190,6 @@ Any error message produced by the actuator appears below:
 $@
 EOS
 	    }
-
-	    next CONF;
 	}
     }
     return;
@@ -225,6 +222,7 @@ sub _functor {
 1; # End of SVN::Hooks::UpdateConfFile
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -233,7 +231,7 @@ SVN::Hooks::UpdateConfFile - Maintain the repository configuration versioned.
 
 =head1 VERSION
 
-version 1.19
+version 1.20
 
 =head1 SYNOPSIS
 
@@ -373,10 +371,9 @@ Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by CPqD.
+This software is copyright (c) 2013 by CPqD.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

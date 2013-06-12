@@ -3,7 +3,7 @@ use strict;
 
 package SVN::Hooks;
 {
-  $SVN::Hooks::VERSION = '1.19';
+  $SVN::Hooks::VERSION = '1.20';
 }
 # ABSTRACT: A framework for implementing Subversion hooks.
 
@@ -37,7 +37,7 @@ sub run_hook {
 	next unless -e $conffile; # Configuration files are optional
 	package main;
 {
-  $main::VERSION = '1.19';
+  $main::VERSION = '1.20';
 }
 	unless (my $return = do $conffile) {
 	    die "couldn't parse '$conffile': $@\n" if $@;
@@ -70,6 +70,8 @@ sub run_hook {
 
     return;
 }
+
+## no critic (Subroutines::ProhibitSubroutinePrototypes)
 
 # post-commit(SVN::Look)
 
@@ -134,8 +136,11 @@ sub START_COMMIT (&) {
     $Hooks{'start-commit'}{$hook} ||= sub { $hook->(@_); };
 }
 
+## use critic
+
 1; # End of SVN::Hooks
 
+__END__
 
 =pod
 
@@ -145,7 +150,7 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-version 1.19
+version 1.20
 
 =head1 SYNOPSIS
 
@@ -221,7 +226,7 @@ comply to specified policies. The C<post-commit> can be used to log or
 alert interested parties about the commit just done.
 
 IMPORTANT NOTE from the svnbook: "For security reasons, the Subversion
-repository executes hook programs with an empty environment—that is,
+repository executes hook programs with an empty environment---that is,
 no environment variables are set at all, not even $PATH (or %PATH%,
 under Windows). Because of this, many administrators are baffled when
 their hook program runs fine by hand, but doesn't work when run by
@@ -572,13 +577,9 @@ Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by CPqD.
+This software is copyright (c) 2013 by CPqD.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-

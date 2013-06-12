@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckJira;
 {
-  $SVN::Hooks::CheckJira::VERSION = '1.19';
+  $SVN::Hooks::CheckJira::VERSION = '1.20';
 }
 # ABSTRACT: Integrate Subversion with the JIRA ticketing system.
 
@@ -55,7 +55,7 @@ sub _validate_projects {
     my ($opt, $val) = @_;
     is_string($val) && $val =~ /^[A-Z,]+$/
 	or croak "$HOOK: $opt\'s value must be a string matching /^[A-Z,]+\$/.\n";
-    my %projects = map {$_ => undef} grep {/./} split /,/, $val;
+    my %projects = map {$_ => undef} grep {/./} split /\s*,\s*/, $val;
     return \%projects;
 }
 
@@ -231,6 +231,7 @@ sub post_commit {
 1; # End of SVN::Hooks::CheckJira
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -239,7 +240,7 @@ SVN::Hooks::CheckJira - Integrate Subversion with the JIRA ticketing system.
 
 =head1 VERSION
 
-version 1.19
+version 1.20
 
 =head1 DESCRIPTION
 
@@ -460,10 +461,9 @@ Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by CPqD.
+This software is copyright (c) 2013 by CPqD.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
