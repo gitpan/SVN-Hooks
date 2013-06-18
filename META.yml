@@ -33,4 +33,4 @@ requires:
   warnings: 0
 resources:
   repository: git://github.com/gustavo@gnustavo.com/SVN-Hooks.git
-version: 1.20
+version: 1.21
