@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::AllowLogChange;
 {
-  $SVN::Hooks::AllowLogChange::VERSION = '1.21';
+  $SVN::Hooks::AllowLogChange::VERSION = '1.22';
 }
 # ABSTRACT: Allow changes in revision log messages.
 
@@ -59,13 +59,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 SVN::Hooks::AllowLogChange - Allow changes in revision log messages.
 
 =head1 VERSION
 
-version 1.21
+version 1.22
 
 =head1 SYNOPSIS
 

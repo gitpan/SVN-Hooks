@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckJira;
 {
-  $SVN::Hooks::CheckJira::VERSION = '1.21';
+  $SVN::Hooks::CheckJira::VERSION = '1.22';
 }
 # ABSTRACT: Integrate Subversion with the JIRA ticketing system.
 
@@ -53,8 +53,8 @@ sub CHECK_JIRA_CONFIG {
 
 sub _validate_projects {
     my ($opt, $val) = @_;
-    is_string($val) && $val =~ /^[A-Z,]+$/
-	or croak "$HOOK: $opt\'s value must be a string matching /^[A-Z,]+\$/.\n";
+    is_string($val) && $val =~ /^[A-Z,\s]+$/
+	or croak "$HOOK: $opt\'s value must be a string matching /^[A-Z,\\s]+\$/.\n";
     my %projects = map {$_ => undef} grep {/./} split /\s*,\s*/, $val;
     return \%projects;
 }
@@ -234,13 +234,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 SVN::Hooks::CheckJira - Integrate Subversion with the JIRA ticketing system.
 
 =head1 VERSION
 
-version 1.21
+version 1.22
 
 =head1 DESCRIPTION
 
