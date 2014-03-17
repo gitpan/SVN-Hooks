@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::UpdateConfFile;
 {
-  $SVN::Hooks::UpdateConfFile::VERSION = '1.23';
+  $SVN::Hooks::UpdateConfFile::VERSION = '1.24';
 }
 # ABSTRACT: Maintain the repository configuration versioned.
 
@@ -112,6 +112,7 @@ sub post_commit {
 	my $from = $conf->{from};
 	for my $file ($svnlook->added(), $svnlook->updated()) {
             my $to = _post_where_to($absbase, $file, $from, $conf->{to});
+            next unless defined $to;
 
 	    my $text = $svnlook->cat($file);
 
@@ -133,8 +134,16 @@ $@
 EOS
 	    }
 
+            # Create the directory where $to is to be created, if it doesn't
+            # already exist.
+            my $todir = (File::Spec->splitpath($to))[2];
+            unless (-d $todir) {
+                require File::Path;
+                File::Path::make_path($todir);
+            }
+
 	    open my $fd, '>', "$to.new"
-		or croak "$HOOK: Can't open file \"$to\" for writing: $!\n";
+		or croak "$HOOK: Can't open file \"$to.new\" for writing: $!\n";
 	    print $fd $text;
 	    close $fd;
 
@@ -166,7 +175,7 @@ EOS
         if ($conf->{remove}) {
             for my $file ($svnlook->deleted()) {
                 my $to = _post_where_to($absbase, $file, $from, $conf->{to});
-                next unless -f $to;
+                next unless defined $to && -f $to;
                 if (my $rotate = $conf->{rotate}) {
                     _rotate($to, $rotate);
                 } else {
@@ -202,23 +211,23 @@ sub _functor {
     };
 }
 
-# Return the server-side absolute path mapping for the configuration
-# file. $absbase is the absolute path to the repo's conf
-# directory. $file is the path of a file added, modified, or deleted
-# in the commit. $from and $to are the configured mapping.
+# Return the server-side absolute path mapping for the configuration file, or
+# undef if $file doesn't match $from. $absbase is the absolute path to the
+# repo's conf directory. $file is the path of a file added, modified, or
+# deleted in the commit. $from and $to are the configured mapping.
 
 sub _post_where_to {
     my ($absbase, $file, $from, $to) = @_;
 
     if (is_string($from)) {
-        next if $file ne $from;
+        return if $file ne $from;
     } else {
-        next if $file !~ $from;
+        return if $file !~ $from;
         # interpolate backreferences
         $to = eval qq{"$to"};   ## no critic
     }
 
-    $to = abs_path(catfile($SVN::Hooks::Repo, 'conf', $to));
+    $to = abs_path(catfile($absbase, $to));
     if (-d $to) {
         $to = catfile($to, (File::Spec->splitpath($file))[2]);
     }
@@ -265,7 +274,7 @@ SVN::Hooks::UpdateConfFile - Maintain the repository configuration versioned.
 
 =head1 VERSION
 
-version 1.23
+version 1.24
 
 =head1 SYNOPSIS
 
@@ -294,9 +303,10 @@ FROM can be a string or a qr/Regexp/ specifying the file path relative
 to the repository's root (e.g. "trunk/src/version.c" or
 "qr:^conf/(\w+).conf$:").
 
-TO is a path relative to the C</repo/conf> directory in the server. It
-can be an explicit file name or a directory, in which case the
-basename of FROM is used as the name of the destination file.
+TO is a path relative to the C</repo/conf> directory in the server. It can be
+an explicit file name or a directory, in which case the basename of FROM is
+used as the name of the destination file. Non-existing diredtory components of
+TO are automatically created.
 
 If FROM is a qr/Regexp/, TO is evaluated as a string in order to allow
 for the interpolation of capture buffers from the regular
@@ -413,7 +423,7 @@ Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by CPqD.
+This software is copyright (c) 2014 by CPqD.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

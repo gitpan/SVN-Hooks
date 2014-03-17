@@ -4,7 +4,6 @@ author:
   - 'Gustavo L. de M. Chaves <gnustavo@cpan.org>'
 build_requires:
   File::Copy: 0
-  File::Path: 0
   Test::More: 0
   URI::file: 0
   lib: 0
@@ -23,6 +22,7 @@ requires:
   Data::Util: 0
   Exporter: 0
   File::Basename: 0
+  File::Path: 0
   File::Spec::Functions: 0
   File::Temp: 0
   JIRA::Client: 0
@@ -35,4 +35,4 @@ resources:
   bugtracker: https://github.com/gnustavo/SVN-Hooks/issues
   homepage: http://search.cpan.org/dist/SVN-Hooks/
   repository: git://github.com/gnustavo/SVN-Hooks.git
-version: 1.23
+version: 1.24

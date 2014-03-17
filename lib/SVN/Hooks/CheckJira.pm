@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckJira;
 {
-  $SVN::Hooks::CheckJira::VERSION = '1.23';
+  $SVN::Hooks::CheckJira::VERSION = '1.24';
 }
 # ABSTRACT: Integrate Subversion with the JIRA ticketing system.
 
@@ -242,7 +242,7 @@ SVN::Hooks::CheckJira - Integrate Subversion with the JIRA ticketing system.
 
 =head1 VERSION
 
-version 1.23
+version 1.24
 
 =head1 DESCRIPTION
 
@@ -463,7 +463,7 @@ Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by CPqD.
+This software is copyright (c) 2014 by CPqD.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

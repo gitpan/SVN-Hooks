@@ -3,7 +3,7 @@ use strict;
 
 package SVN::Hooks;
 {
-  $SVN::Hooks::VERSION = '1.23';
+  $SVN::Hooks::VERSION = '1.24';
 }
 # ABSTRACT: A framework for implementing Subversion hooks.
 
@@ -37,7 +37,7 @@ sub run_hook {
 	next unless -e $conffile; # Configuration files are optional
 	package main;
 {
-  $main::VERSION = '1.23';
+  $main::VERSION = '1.24';
 }
 	unless (my $return = do $conffile) {
 	    die "couldn't parse '$conffile': $@\n" if $@;
@@ -152,7 +152,7 @@ SVN::Hooks - A framework for implementing Subversion hooks.
 
 =head1 VERSION
 
-version 1.23
+version 1.24
 
 =head1 SYNOPSIS
 
@@ -579,7 +579,7 @@ Gustavo L. de M. Chaves <gnustavo@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by CPqD.
+This software is copyright (c) 2014 by CPqD.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

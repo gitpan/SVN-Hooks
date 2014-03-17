@@ -25,6 +25,7 @@ my %WriteMakefileArgs = (
     "Data::Util" => 0,
     "Exporter" => 0,
     "File::Basename" => 0,
+    "File::Path" => 0,
     "File::Spec::Functions" => 0,
     "File::Temp" => 0,
     "JIRA::Client" => 0,
@@ -36,12 +37,11 @@ my %WriteMakefileArgs = (
   },
   "TEST_REQUIRES" => {
     "File::Copy" => 0,
-    "File::Path" => 0,
     "Test::More" => 0,
     "URI::file" => 0,
     "lib" => 0
   },
-  "VERSION" => "1.23",
+  "VERSION" => "1.24",
   "test" => {
     "TESTS" => "t/*.t"
   }
