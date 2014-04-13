@@ -8,7 +8,7 @@ use Test::More;
 require "test-functions.pl";
 
 if (can_svn()) {
-    plan tests => 17;
+    plan tests => 18;
 }
 else {
     plan skip_all => 'Cannot find or use svn commands.';
@@ -112,7 +112,7 @@ my $cmp = catfile($t, 'cmp.pl');
     open my $fh, '>', $cmp or die "Can't open '$cmp' for writing: $!\n";
     print $fh <<'EOS';
 use File::Compare;
-compare(@ARGV);
+exit compare(@ARGV);
 EOS
 }
 
@@ -159,7 +159,9 @@ $perl $cmp $generated $cgenerate
 EOS
 
 my $config = <<'EOS';
-UPDATE_CONF_FILE(subfile => 'subdir');
+UPDATE_CONF_FILE(subfile => 'subdir/');
+
+UPDATE_CONF_FILE(outfile => '../outdir/');
 
 UPDATE_CONF_FILE(qr/^file(\d)$/ => '$1-file');
 
@@ -190,6 +192,16 @@ echo asdf >$subfile
 svn add -q --no-auto-props $subfile
 svn ci -mx $subfile
 $perl $cmp $subfile $csubfile
+EOS
+
+my $outfile = catfile($wc, 'outfile');
+my $coutfile = catfile($t, 'repo', 'outdir', 'outfile');
+
+work_nok('to outdir', '', <<"EOS");
+echo asdf >$outfile
+svn add -q --no-auto-props $outfile
+svn ci -mx $outfile
+$perl $cmp $outfile $coutfile
 EOS
 
 my $cfile1 = catfile($conf, '1-file');
@@ -239,9 +251,6 @@ work_ok('delete files in commit', <<"EOS");
 svn delete -q $unremoveable $removeable
 svn ci -mx $wc
 EOS
-
-#diag("wc: $wc; conf: $conf; $cunremoveable; $cremoveable");
-#system('bash');
 
 ok(! -f $cremoveable, 'remove conf');
 

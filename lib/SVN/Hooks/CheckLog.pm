@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckLog;
 {
-  $SVN::Hooks::CheckLog::VERSION = '1.24';
+  $SVN::Hooks::CheckLog::VERSION = '1.25';
 }
 # ABSTRACT: Check log messages in commits.
 
@@ -62,7 +62,7 @@ SVN::Hooks::CheckLog - Check log messages in commits.
 
 =head1 VERSION
 
-version 1.24
+version 1.25
 
 =head1 SYNOPSIS
 

@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckMimeTypes;
 {
-  $SVN::Hooks::CheckMimeTypes::VERSION = '1.24';
+  $SVN::Hooks::CheckMimeTypes::VERSION = '1.25';
 }
 # ABSTRACT: Require the svn:mime-type property.
 
@@ -85,7 +85,7 @@ SVN::Hooks::CheckMimeTypes - Require the svn:mime-type property.
 
 =head1 VERSION
 
-version 1.24
+version 1.25
 
 =head1 SYNOPSIS
 
