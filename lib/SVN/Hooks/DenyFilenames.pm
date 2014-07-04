@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::DenyFilenames;
 {
-  $SVN::Hooks::DenyFilenames::VERSION = '1.25';
+  $SVN::Hooks::DenyFilenames::VERSION = '1.26';
 }
 # ABSTRACT: Deny some file names.
 
@@ -101,7 +101,7 @@ SVN::Hooks::DenyFilenames - Deny some file names.
 
 =head1 VERSION
 
-version 1.25
+version 1.26
 
 =head1 SYNOPSIS
 

@@ -31,3 +31,10 @@
 * Implement a clone of
    http://svn.collab.net/viewvc/svn/trunk/contrib/hook-scripts/case-insensitive.py
 
+* I18N the SVN::Hooks messages.
+
+* Implement the funcionality of
+  http://svn.collab.net/repos/svn/trunk/contrib/hook-scripts/case-insensitive.py
+  as a plugin.
+
+* Increment SVN::Hooks::Notify to send emails in HTML.

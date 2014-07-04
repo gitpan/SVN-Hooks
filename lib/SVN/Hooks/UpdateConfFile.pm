@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::UpdateConfFile;
 {
-  $SVN::Hooks::UpdateConfFile::VERSION = '1.25';
+  $SVN::Hooks::UpdateConfFile::VERSION = '1.26';
 }
 # ABSTRACT: Maintain the repository configuration versioned.
 
@@ -276,7 +276,7 @@ SVN::Hooks::UpdateConfFile - Maintain the repository configuration versioned.
 
 =head1 VERSION
 
-version 1.25
+version 1.26
 
 =head1 SYNOPSIS
 

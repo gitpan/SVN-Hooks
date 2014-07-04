@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::Generic;
 {
-  $SVN::Hooks::Generic::VERSION = '1.25';
+  $SVN::Hooks::Generic::VERSION = '1.26';
 }
 # ABSTRACT: Implement generic checks for all Subversion hooks.
 
@@ -34,7 +34,7 @@ sub GENERIC {
 	}
 	foreach my $foo (@$functions) {
 	    is_code_ref($foo) or die "$HOOK: hook '$hook' should be mapped to CODE-refs.\n";
-	    $SVN::Hooks::Hooks{$hook}{$foo} ||= sub { $foo->(@_); };
+	    push @{$SVN::Hooks::Hooks{$hook}}, sub { $foo->(@_); };
 	}
     }
 
@@ -55,7 +55,7 @@ SVN::Hooks::Generic - Implement generic checks for all Subversion hooks.
 
 =head1 VERSION
 
-version 1.25
+version 1.26
 
 =head1 SYNOPSIS
 

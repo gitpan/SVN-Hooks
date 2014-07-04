@@ -3,7 +3,7 @@ use warnings;
 
 package SVN::Hooks::CheckJira;
 {
-  $SVN::Hooks::CheckJira::VERSION = '1.25';
+  $SVN::Hooks::CheckJira::VERSION = '1.26';
 }
 # ABSTRACT: Integrate Subversion with the JIRA ticketing system.
 
@@ -14,7 +14,7 @@ use JIRA::Client;
 
 use Exporter qw/import/;
 my $HOOK = 'CHECK_JIRA';
-our @EXPORT = qw/CHECK_JIRA_CONFIG CHECK_JIRA/;
+our @EXPORT = qw/CHECK_JIRA_CONFIG CHECK_JIRA CHECK_JIRA_DISABLE/;
 
 
 my ($BaseURL, $Login, $Passwd, $MatchLog, $MatchKey);
@@ -116,6 +116,13 @@ sub CHECK_JIRA {
     return 1;
 }
 
+
+my $Disabled;
+
+sub CHECK_JIRA_DISABLE {
+    $Disabled = 1;
+}
+
 sub _pre_checks {
     my ($svnlook, $keys, $opts) = @_;
 
@@ -165,6 +172,8 @@ sub _post_action {
 
 sub _check_if_needed {
     my ($svnlook, $docheck) = @_;
+
+    return if $Disabled;
 
     defined $BaseURL
 	or croak "$HOOK: plugin not configured. Please, use the CHECK_JIRA_CONFIG directive.\n";
@@ -242,7 +251,7 @@ SVN::Hooks::CheckJira - Integrate Subversion with the JIRA ticketing system.
 
 =head1 VERSION
 
-version 1.25
+version 1.26
 
 =head1 DESCRIPTION
 
@@ -454,6 +463,12 @@ it using the "exclude" option like this:
         exclude => qr:/documentation/:,
         # other options...
     });
+
+=head2 CHECK_JIRA_DISABLE
+
+This directive globally disables all CHECK_JIRA directives. It's useful, for
+instance, when your JIRA server must be taken down for maintenance and you
+don't want to reject Subversion commits in this period.
 
 =for Pod::Coverage post_commit pre_commit
 
