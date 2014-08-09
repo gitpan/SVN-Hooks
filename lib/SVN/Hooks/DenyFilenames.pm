@@ -1,11 +1,11 @@
-use strict;
-use warnings;
-
 package SVN::Hooks::DenyFilenames;
 {
-  $SVN::Hooks::DenyFilenames::VERSION = '1.26';
+  $SVN::Hooks::DenyFilenames::VERSION = '1.27';
 }
 # ABSTRACT: Deny some file names.
+
+use strict;
+use warnings;
 
 use Carp;
 use Data::Util qw(:check);
@@ -101,7 +101,7 @@ SVN::Hooks::DenyFilenames - Deny some file names.
 
 =head1 VERSION
 
-version 1.26
+version 1.27
 
 =head1 SYNOPSIS
 

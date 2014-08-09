@@ -1,11 +1,11 @@
-use strict;
-use warnings;
-
 package SVN::Hooks::AllowLogChange;
 {
-  $SVN::Hooks::AllowLogChange::VERSION = '1.26';
+  $SVN::Hooks::AllowLogChange::VERSION = '1.27';
 }
 # ABSTRACT: Allow changes in revision log messages.
+
+use strict;
+use warnings;
 
 use Carp;
 use Data::Util qw(:check);
@@ -67,7 +67,7 @@ SVN::Hooks::AllowLogChange - Allow changes in revision log messages.
 
 =head1 VERSION
 
-version 1.26
+version 1.27
 
 =head1 SYNOPSIS
 

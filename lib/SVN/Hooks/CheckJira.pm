@@ -1,11 +1,11 @@
-use strict;
-use warnings;
-
 package SVN::Hooks::CheckJira;
 {
-  $SVN::Hooks::CheckJira::VERSION = '1.26';
+  $SVN::Hooks::CheckJira::VERSION = '1.27';
 }
 # ABSTRACT: Integrate Subversion with the JIRA ticketing system.
+
+use strict;
+use warnings;
 
 use Carp;
 use Data::Util qw(:check);
@@ -39,7 +39,7 @@ sub CHECK_JIRA_CONFIG {
     if (defined $MatchLog) {
 	is_rx($MatchLog) or croak "CHECK_JIRA_CONFIG: fourth argument must be a Regexp.\n";
     } else {
-	$MatchLog = qr/[A-Z]{2,}/;
+	$MatchLog = qr/(.*)/;
     }
 
     @_ >= 3 && @_ <= 5
@@ -251,7 +251,7 @@ SVN::Hooks::CheckJira - Integrate Subversion with the JIRA ticketing system.
 
 =head1 VERSION
 
-version 1.26
+version 1.27
 
 =head1 DESCRIPTION
 

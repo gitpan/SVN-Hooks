@@ -1,11 +1,11 @@
-use strict;
-use warnings;
-
 package SVN::Hooks::CheckLog;
 {
-  $SVN::Hooks::CheckLog::VERSION = '1.26';
+  $SVN::Hooks::CheckLog::VERSION = '1.27';
 }
 # ABSTRACT: Check log messages in commits.
+
+use strict;
+use warnings;
 
 use Carp;
 use Data::Util qw(:check);
@@ -62,7 +62,7 @@ SVN::Hooks::CheckLog - Check log messages in commits.
 
 =head1 VERSION
 
-version 1.26
+version 1.27
 
 =head1 SYNOPSIS
 

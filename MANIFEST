@@ -29,7 +29,6 @@ lib/SVN/Hooks/JiraAcceptance.pm
 lib/SVN/Hooks/Mailer.pm
 lib/SVN/Hooks/Notify.pm
 lib/SVN/Hooks/UpdateConfFile.pm
-perlcritic.rc
 t/00-load.t
 t/01-direct.t
 t/02-allowlogchange.t
@@ -48,7 +47,6 @@ t/02-jiraacceptance.t
 t/02-mailer.t
 t/02-notify.t
 t/02-updateconffile.t
-t/author-critic.t
 t/release-kwalitee.t
 t/release-pod-coverage.t
 t/release-pod-syntax.t

@@ -1,5 +1,5 @@
 ---
-abstract: 'A framework for implementing Subversion hooks.'
+abstract: 'Framework for implementing Subversion hooks'
 author:
   - 'Gustavo L. de M. Chaves <gnustavo@cpan.org>'
 build_requires:
@@ -35,4 +35,4 @@ resources:
   bugtracker: https://github.com/gnustavo/SVN-Hooks/issues
   homepage: http://search.cpan.org/dist/SVN-Hooks/
   repository: git://github.com/gnustavo/SVN-Hooks.git
-version: 1.26
+version: 1.27

@@ -1,11 +1,11 @@
-use strict;
-use warnings;
-
 package SVN::Hooks::CheckMimeTypes;
 {
-  $SVN::Hooks::CheckMimeTypes::VERSION = '1.26';
+  $SVN::Hooks::CheckMimeTypes::VERSION = '1.27';
 }
 # ABSTRACT: Require the svn:mime-type property.
+
+use strict;
+use warnings;
 
 use Carp;
 use SVN::Hooks;
@@ -85,7 +85,7 @@ SVN::Hooks::CheckMimeTypes - Require the svn:mime-type property.
 
 =head1 VERSION
 
-version 1.26
+version 1.27
 
 =head1 SYNOPSIS
 

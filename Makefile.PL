@@ -10,7 +10,7 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "A framework for implementing Subversion hooks.",
+  "ABSTRACT" => "Framework for implementing Subversion hooks",
   "AUTHOR" => "Gustavo L. de M. Chaves <gnustavo\@cpan.org>",
   "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
@@ -42,7 +42,7 @@ my %WriteMakefileArgs = (
     "URI::file" => 0,
     "lib" => 0
   },
-  "VERSION" => "1.26",
+  "VERSION" => "1.27",
   "test" => {
     "TESTS" => "t/*.t"
   }

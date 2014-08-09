@@ -1,11 +1,11 @@
-use warnings;
-use strict;
-
 package SVN::Hooks;
 {
-  $SVN::Hooks::VERSION = '1.26';
+  $SVN::Hooks::VERSION = '1.27';
 }
-# ABSTRACT: A framework for implementing Subversion hooks.
+# ABSTRACT: Framework for implementing Subversion hooks
+
+use strict;
+use warnings;
 
 use File::Basename;
 use File::Spec::Functions;
@@ -35,9 +35,11 @@ sub run_hook {
     foreach my $conf (@Conf_Files) {
 	my $conffile = file_name_is_absolute($conf) ? $conf : catfile($Repo, $conf);
 	next unless -e $conffile; # Configuration files are optional
+
+        # The configuration file must be evaluated in the main:: namespace
 	package main;
 {
-  $main::VERSION = '1.26';
+  $main::VERSION = '1.27';
 }
 	unless (my $return = do $conffile) {
 	    die "couldn't parse '$conffile': $@\n" if $@;
@@ -78,6 +80,7 @@ sub run_hook {
 sub POST_COMMIT (&) {
     my ($hook) = @_;
     push @{$Hooks{'post-commit'}}, sub { $hook->(@_); };
+    return;
 }
 
 # post-lock(repos-path, username)
@@ -85,6 +88,7 @@ sub POST_COMMIT (&) {
 sub POST_LOCK (&) {
     my ($hook) = @_;
     push @{$Hooks{'post-lock'}}, sub { $hook->(@_); };
+    return;
 }
 
 # post-revprop-change(SVN::Look, username, property-name, action)
@@ -92,6 +96,7 @@ sub POST_LOCK (&) {
 sub POST_REVPROP_CHANGE (&) {
     my ($hook) = @_;
     push @{$Hooks{'post-revprop-change'}}, sub { $hook->(@_); };
+    return;
 }
 
 # post-unlock(repos-path, username)
@@ -99,6 +104,7 @@ sub POST_REVPROP_CHANGE (&) {
 sub POST_UNLOCK (&) {
     my ($hook) = @_;
     push @{$Hooks{'post-unlock'}}, sub { $hook->(@_); };
+    return;
 }
 
 # pre-commit(SVN::Look)
@@ -106,6 +112,7 @@ sub POST_UNLOCK (&) {
 sub PRE_COMMIT (&) {
     my ($hook) = @_;
     push @{$Hooks{'pre-commit'}}, sub { $hook->(@_); };
+    return;
 }
 
 # pre-lock(repos-path, path, username, comment, steal-lock-flag)
@@ -113,6 +120,7 @@ sub PRE_COMMIT (&) {
 sub PRE_LOCK (&) {
     my ($hook) = @_;
     push @{$Hooks{'pre-lock'}}, sub { $hook->(@_); };
+    return;
 }
 
 # pre-revprop-change(SVN::Look, username, property-name, action)
@@ -120,6 +128,7 @@ sub PRE_LOCK (&) {
 sub PRE_REVPROP_CHANGE (&) {
     my ($hook) = @_;
     push @{$Hooks{'pre-revprop-change'}}, sub { $hook->(@_); };
+    return;
 }
 
 # pre-unlock(repos-path, path, username, lock-token, break-unlock-flag)
@@ -127,6 +136,7 @@ sub PRE_REVPROP_CHANGE (&) {
 sub PRE_UNLOCK (&) {
     my ($hook) = @_;
     push @{$Hooks{'pre-unlock'}}, sub { $hook->(@_); };
+    return;
 }
 
 # start-commit(repos-path, username, capabilities)
@@ -134,6 +144,7 @@ sub PRE_UNLOCK (&) {
 sub START_COMMIT (&) {
     my ($hook) = @_;
     push @{$Hooks{'start-commit'}}, sub { $hook->(@_); };
+    return;
 }
 
 ## use critic
@@ -148,11 +159,11 @@ __END__
 
 =head1 NAME
 
-SVN::Hooks - A framework for implementing Subversion hooks.
+SVN::Hooks - Framework for implementing Subversion hooks
 
 =head1 VERSION
 
-version 1.26
+version 1.27
 
 =head1 SYNOPSIS
 

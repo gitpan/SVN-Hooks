@@ -1,11 +1,11 @@
-use strict;
-use warnings;
-
 package SVN::Hooks::Notify;
 {
-  $SVN::Hooks::Notify::VERSION = '1.26';
+  $SVN::Hooks::Notify::VERSION = '1.27';
 }
 # ABSTRACT: Subversion activity notification.
+
+use strict;
+use warnings;
 
 use SVN::Hooks;
 
@@ -63,7 +63,7 @@ SVN::Hooks::Notify - Subversion activity notification.
 
 =head1 VERSION
 
-version 1.26
+version 1.27
 
 =head1 SYNOPSIS
 

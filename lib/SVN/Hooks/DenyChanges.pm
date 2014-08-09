@@ -1,11 +1,11 @@
-use strict;
-use warnings;
-
 package SVN::Hooks::DenyChanges;
 {
-  $SVN::Hooks::DenyChanges::VERSION = '1.26';
+  $SVN::Hooks::DenyChanges::VERSION = '1.27';
 }
 # ABSTRACT: Deny some changes in a repository.
+
+use strict;
+use warnings;
 
 use Carp;
 use Data::Util qw(:check);
@@ -117,7 +117,7 @@ SVN::Hooks::DenyChanges - Deny some changes in a repository.
 
 =head1 VERSION
 
-version 1.26
+version 1.27
 
 =head1 SYNOPSIS
 

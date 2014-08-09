@@ -1,11 +1,11 @@
-use strict;
-use warnings;
-
 package SVN::Hooks::JiraAcceptance;
 {
-  $SVN::Hooks::JiraAcceptance::VERSION = '1.26';
+  $SVN::Hooks::JiraAcceptance::VERSION = '1.27';
 }
 # ABSTRACT: Integrate Subversion with the JIRA ticketing system.
+
+use strict;
+use warnings;
 
 use Carp;
 use Data::Util qw(:check);
@@ -150,7 +150,7 @@ SVN::Hooks::JiraAcceptance - Integrate Subversion with the JIRA ticketing system
 
 =head1 VERSION
 
-version 1.26
+version 1.27
 
 =head1 SYNOPSIS
 
